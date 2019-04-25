@@ -35,6 +35,7 @@ using Mimi
         #Define function for TATMABS
         for r in d.regions
             v.TATMABS[t,r] = p.tatm1900[r] + v.TATM[t]
+            println(v.TATMABS[t,r])
         end
 
         #Define function for TOCEAN

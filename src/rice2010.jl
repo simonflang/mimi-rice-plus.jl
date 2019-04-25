@@ -140,6 +140,7 @@ function constructrice(p)
 
     #Simon's changes
     set_param!(m, :damages, :tatm1900, p[:tatm1900])
+    connect_param!(m, :damages, :TATMABS, :climatedynamics, :TATMABS)
 
     # NET ECONOMY COMPONENT
     set_param!(m, :neteconomy, :S, p[:savings])

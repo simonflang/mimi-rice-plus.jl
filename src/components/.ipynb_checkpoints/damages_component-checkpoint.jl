@@ -27,7 +27,11 @@ using Mimi
 
     #Define function for DAMFRAC
     for r in d.regions
-        v.DAMFRAC[t,r] = ((p.d1 * p.TATMABS[t] + p.d2 * p.TATMABS[t]^2) - (p.d1 * p.tatm1900 + p.d2 * p.tatm1900^2)) + (p.SLRDAMAGES[t,r] / 100)
+        println(p.d1)
+        println(v.TATMABS[t,r])       
+        println((p.d1 * v.TATMABS[t,r] + p.d2 * v.TATMABS[t,r]^2))
+        println((p.d1 * v.tatm1900[r] + p.d2 * v.tatm1900[r]^2))
+            v.DAMFRAC[t,r] = ((p.d1 * v.TATMABS[t,r] + p.d2 * v.TATMABS[t,r]^2) - (p.d1 * v.tatm1900[r] + p.d2 * v.tatm1900[r]^2)) + (p.SLRDAMAGES[t,r] / 100)
     end
 
         # OLD - Define function for DAMFRAC

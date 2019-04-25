@@ -93,7 +93,6 @@ function constructrice(p)
 
     #Simon's changes
     set_param!(m, :climatedynamics, :tatm1900, p[:tatm1900])
-    connect_param!(m, :climatedynamics, :tatm1900, :damages, :tatm1900)
 
     # SEA LEVEL RISE COMPONENT
     set_param!(m, :sealevelrise, :thermeq, p[:thermeq])
@@ -141,7 +140,7 @@ function constructrice(p)
 
     #Simon's changes
     set_param!(m, :damages, :tatm1900, p[:tatm1900])
-    connect_param!(m, :damages, :tatm1900, :climatedynamics, :tatm1900)
+    connect_param!(m, :damages, :TATMABS, :climatedynamics, :TATMABS)
 
     # NET ECONOMY COMPONENT
     set_param!(m, :neteconomy, :S, p[:savings])
