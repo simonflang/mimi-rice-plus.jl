@@ -10,7 +10,7 @@ using .Rice2010
 m = getrice()
 run(m)
 
-parameter_filename = joinpath(@__DIR__, "..", "data", "RICE_2010_base_000.xlsm")
+parameter_filename = joinpath(@__DIR__, "..", "data", "RICE_2010_base_000_v1.0s.xlsm")
 
 f=openxl(parameter_filename)
 regions = ["US", "EU", "Japan", "Russia", "Eurasia", "China", "India", "MidEast", "Africa", "LatAm", "OHI", "OthAsia"]
@@ -96,14 +96,14 @@ end #mimi-rice-2010-model testset
 nullvalue = -999.999
 
 for c in map(name, Mimi.compdefs(m)), v in Mimi.variable_names(m, c)
-    
+
     #load data for comparison
     filepath = joinpath(@__DIR__, "..", "data", "validation_data_v040", "$c-$v.csv")
     results = m[c, v]
 
     if typeof(results) <: Number
         validation_results = CSV.read(filepath)[1,1]
-        
+
     else
         validation_results = convert(Array, CSV.read(filepath))
 
@@ -111,7 +111,7 @@ for c in map(name, Mimi.compdefs(m)), v in Mimi.variable_names(m, c)
         results[ismissing.(results)] .= nullvalue
         results[isnan.(results)] .= nullvalue
         validation_results[isnan.(validation_results)] .= nullvalue
-        
+
         #match dimensions
         if size(validation_results,1) == 1
             validation_results = validation_results'
@@ -119,7 +119,7 @@ for c in map(name, Mimi.compdefs(m)), v in Mimi.variable_names(m, c)
     end
 
     @test results ≈ validation_results atol = Precision
-    
+
 end #for loop
 
 end #mimi-rice-2010-integration testset
