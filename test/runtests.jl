@@ -99,6 +99,10 @@ for c in map(name, Mimi.compdefs(m)), v in Mimi.variable_names(m, c)
 
     #load data for comparison
     filepath = joinpath(@__DIR__, "..", "data", "validation_data_v040", "$c-$v.csv")
+    if !isfile(filepath)
+        println("No validation data for $c.$v.")
+        continue
+    end
     results = m[c, v]
 
     if typeof(results) <: Number

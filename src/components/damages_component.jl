@@ -7,7 +7,7 @@ using Mimi
     DAMAGES = Variable(index=[time, regions]) # Damages (trillions 2005 USD per year)
 
     # Simon's changes
-    TATMABS = Variable(index=[time, regions]) # Regional Absolute Temperature (1900 temperature + TATM)
+    TATMABS = Parameter(index=[time, regions]) # Regional Absolute Temperature (1900 temperature + TATM)
 
     TATM = Parameter(index=[time]) # Increase temperature of atmosphere (degrees C from 1900)
     YGROSS = Parameter(index=[time, regions]) # Gross world product GROSS of abatement and damages (trillions 2005 USD per year)
@@ -28,10 +28,10 @@ using Mimi
     #Define function for DAMFRAC
     for r in d.regions
         println(p.d1)
-        println(v.TATMABS[t,r])       
-        println((p.d1 * v.TATMABS[t,r] + p.d2 * v.TATMABS[t,r]^2))
-        println((p.d1 * v.tatm1900[r] + p.d2 * v.tatm1900[r]^2))
-            v.DAMFRAC[t,r] = ((p.d1 * v.TATMABS[t,r] + p.d2 * v.TATMABS[t,r]^2) - (p.d1 * v.tatm1900[r] + p.d2 * v.tatm1900[r]^2)) + (p.SLRDAMAGES[t,r] / 100)
+        println(p.TATMABS[t,r])
+        println((p.d1 * p.TATMABS[t,r] + p.d2 * p.TATMABS[t,r]^2))
+        println((p.d1 * p.tatm1900[r] + p.d2 * p.tatm1900[r]^2))
+            v.DAMFRAC[t,r] = ((p.d1 * p.TATMABS[t,r] + p.d2 * p.TATMABS[t,r]^2) - (p.d1 * p.tatm1900[r] + p.d2 * p.tatm1900[r]^2)) + (p.SLRDAMAGES[t,r] / 100)
     end
 
         # OLD - Define function for DAMFRAC
