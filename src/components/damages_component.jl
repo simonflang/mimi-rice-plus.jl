@@ -3,6 +3,8 @@ using Mimi
 @defcomp damages begin
     regions = Index()
 
+    DAMFRACTATMABS = Variable(index=[time, regions]) # Damages from temperature change as % of GDP (Burke et al. component)
+    DAMFRACSLR = Variable(index=[time, regions]) # Damages from sea level rise as % of GDP
     DAMFRAC = Variable(index=[time, regions]) # Damages as % of GDP
     DAMAGES = Variable(index=[time, regions]) # Damages (trillions 2005 USD per year)
 
@@ -31,7 +33,9 @@ using Mimi
         println(p.TATMABS[t,r])
         println((p.d1 * p.TATMABS[t,r] + p.d2 * p.TATMABS[t,r]^2))
         println((p.d1 * p.tatm1900[r] + p.d2 * p.tatm1900[r]^2))
-            v.DAMFRAC[t,r] = ((p.d1 * p.TATMABS[t,r] + p.d2 * p.TATMABS[t,r]^2) - (p.d1 * p.tatm1900[r] + p.d2 * p.tatm1900[r]^2)) + (p.SLRDAMAGES[t,r] / 100)
+            v.DAMFRACTATMABS[t,r] = -((p.d1 * p.TATMABS[t,r] + p.d2 * p.TATMABS[t,r]^2) - (p.d1 * p.tatm1900[r] + p.d2 * p.tatm1900[r]^2))
+            v.DAMFRACSLR[t,r] = (p.SLRDAMAGES[t,r] / 100)
+            v.DAMFRAC[t,r] = v.DAMFRACTATMABS[t,r] + v.DAMFRACSLR[t,r]
     end
 
         # OLD - Define function for DAMFRAC
