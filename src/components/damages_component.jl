@@ -44,17 +44,17 @@ using Mimi
             # Notes:
             # not devided by 100 as the function already gives damages as a fraction of 1
             # (-) because the function gives damages that are negative but we want a positive DAMFRAC
-            # -0.75 adjusts the TATM to the temperature increase relative to Burke baseline (1980-2010) rather then 1900 bseline
+            # -0.70 adjusts the TATM to the temperature increase relative to Burke baseline (1981-2015) rather then 1900 baseline
                 # WARNING: will still need to adjust this
         for r in d.regions
-            v.DAMFRACTATM[t,r] = -((p.f1[r] + p.f2[r] * (p.TATM[t] - 0.75)) + (p.f3[r] * (p.TATM[t] - 0.75)^p.a3[r])) # DAMFRAC from temperature changes
+            v.DAMFRACTATM[t,r] = -((p.f1[r] + p.f2[r] * (p.TATM[t] - 0.70)) + (p.f3[r] * (p.TATM[t] - 0.70)^p.a3[r])) # DAMFRAC from temperature changes
             v.DAMFRACSLR[t,r] = (p.SLRDAMAGES[t,r] / 100)   # DAMFRAC from SLR
             v.DAMFRAC[t,r] = v.DAMFRACTATM[t,r] + v.DAMFRACSLR[t,r] # Total DAMFRAC
         end
 
         # NEW: COUNTRY-LEVEL - Define function for country-level DAMFRAC (based on Burke damages relative to Burke temperature baseline)
         for c in d.countries
-            v.DAMFRACTATMCTRY[t,c] = -((p.n1[c] + p.n2[c] * (p.TATM[t] - 0.75)) + (p.n3[c] * (p.TATM[t] - 0.75)^2)) # still need to implement SLRDamages
+            v.DAMFRACTATMCTRY[t,c] = -((p.n1[c] + p.n2[c] * (p.TATM[t] - 0.70)) + (p.n3[c] * (p.TATM[t] - 0.70)^2)) # still need to implement SLRDamages
         end
 
 
