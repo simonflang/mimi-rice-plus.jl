@@ -1,3 +1,41 @@
+function construct_RICE_objective(m::Model,t_choice::Int)
+
+    # Find number of timesteps across model time horizon.
+    n_steps = length(dim_keys(m, :time))
+
+    # Pre-allocate matrix to store optimal tax and mitigation rates.
+    MIU = ones(n_steps,12)
+    MIU[1,:] .= 0
+
+    # Create a function to optimize user-specified model for (i) revenue recycling and (ii) reference case.
+    RICE_objective =
+
+    function RICE2010Welfare(MIUvec::Array{Float64,1})
+        for j = 1:12
+            MIU[2:(t_choice+1),j] = MIUvec[((j-1)*t_choice+1):j*t_choice] #imposes 0 MIU in year 2005.
+        end
+        set_param!(m, :emissions, :MIU, MIU)
+        run(m)
+        return(m[:welfare, :welfare])
+	end
+
+    # Return the objective function.
+    return RICE_objective
+end
+
+
+
+function retConstraint(m::Model,max_t)
+    run(m)
+    backstop = m[:emissions,:pbacktime][2:(max_t+1),:]
+    function nlconst(result::Vector,vect::Vector)
+        arr = reshape(vect,:,12)
+        prices = backstop .* arr .^ 1.8
+        result[:] =  std(prices,dims=2) ./ mean(prices,dims=2) .- 0.3
+    end
+end
+
+
 function getindexfromyear_rice_2010(year)
     baseyear = 2005
 
