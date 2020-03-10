@@ -4,91 +4,116 @@ using CSVFiles
 using DataFrames
 using CSV
 using BlackBoxOptim # Optimization package
+# using RCall  # if I would want to do plots in R
+using NLopt
 
 include("rice2010.jl")
+include("helpers.jl")
 using .Rice2010
 
+# optimization = "Yes"      # "Yes" or "No"
 
 # Set the model version manually in the following components:
 # 1) grosseconomy
 # 2) neteconomy
 
+# Set the optimand manually in the following component
+# 3) helpers (in "return(m[:welfare, :???])")
+
 # set output directory
 dir_output = "C:/Users/simon/Google Drive/Uni/LSE Master/02_Dissertation/10_Modelling/damage-regressions/data/mimi-rice-output/temporary/"
 
-# Normal ######################################################
-m = getrice()
+#####################################################################################
+# Non-optimization Run
+# ###################################################################################
 
-marginalemission = 0    # 1 = additional emission pulse; 0 otherwise
-set_param!(m,:emissions,:marginalemission,marginalemission)
+# if optimization == "No"
 
-marginalconsumption = 0    # 1 = additional consumption pulse; 0 otherwise
-set_param!(m,:neteconomy,:marginalconsumption,marginalconsumption)
+    m = getrice()
 
-run(m)
-explore(m)
+    marginalemission = 0    # 1 = additional emission pulse; 0 otherwise
+    set_param!(m,:emissions,:marginalemission,marginalemission)
 
-## Optimization #################################################################
+    marginalconsumption = 0    # 1 = additional consumption pulse; 0 otherwise
+    set_param!(m,:neteconomy,:marginalconsumption,marginalconsumption)
 
-using BlackBoxOptim
-using NLopt
-m_opt = getrice()
+    run(m)
+    explore(m)
 
-marginalemission = 0    # 1 = additional emission pulse; 0 otherwise
-set_param!(m_opt,:emissions,:marginalemission,marginalemission)
+# end
 
-marginalconsumption = 0    # 1 = additional consumption pulse; 0 otherwise
-set_param!(m_opt,:neteconomy,:marginalconsumption,marginalconsumption)
+####################################################################################
+# Optimization Run
+# ##################################################################################
 
-run(m_opt)
+# if optimization == "Yes"
 
-## RICE Update code
+    m_opt = getrice()
 
-# Load RICE+AIR source code.
-# include("mRICE2010.jl")
+    marginalemission = 0    # 1 = additional emission pulse; 0 otherwise
+    set_param!(m_opt,:emissions,:marginalemission,marginalemission)
 
-# this is how you initiate an instance m of the model
-# m_opt = get_rice() #default if get_rice(objective = "Neutral") set objective = "Negishi" for that objective
-# then you run the model
-# run(m_opt)
+    marginalconsumption = 0    # 1 = additional consumption pulse; 0 otherwise
+    set_param!(m_opt,:neteconomy,:marginalconsumption,marginalconsumption)
 
-# say you want to change some parameter
-#like the discount rate
-# m[:welfare,:rho] = 1.5
-#or the mitigation fraction, this is how we input the control variable in the optimisation
-# m[:emissions,:MIU] = 0.5*ones(60,12)
+    run(m_opt)
 
-# the way the optimisation works is that we construc the model, and set a bunch of user defined paramaters, and from that construct the objective
 
-# mod = get_rice()  # this line seems to do nothing (SL commented it out)
+    ## RICE Update code
 
-# number of periods of control
-t_choice = 29
-# Maximum time in seconds to run local optimization (in case optimization does not converge).
-local_stop_time = 500
-# Relative tolerance criteria for global optimization convergence (will stop if |Δf| / |f| < tolerance from one iteration to the next.)
-local_tolerance = 1e-12
-objective = construct_RICE_objective(m_opt,t_choice)
-constraint = retConstraint(m_opt,t_choice)
-# set up optimisation# Create an NLopt optimization object.
-opt_object = Opt(:LN_SBPLX, t_choice*12)
-# set up constraint
+    # Load RICE+AIR source code.
+    # include("mRICE2010.jl")
 
-# bounds on the control variable
-lower_bounds!(opt_object, zeros(12*t_choice))
-upper_bounds!(opt_object, ones(12*t_choice))
-# Set maximum run time.
-maxtime!(opt_object, local_stop_time)
-# Set convergence tolerance.
-ftol_rel!(opt_object, local_tolerance)
-# Set objective function.
-max_objective!(opt_object, (x, grad) -> objective(x))
-# inequality_constraint!(opt_object, (x, grad) -> constraint(x)-0.5) # I commented it out because it throws the following error "ArgumentError: invalid NLopt arguments: invalid algorithm for constraints"
-max_welfare, optimal_rates, convergence_flag = optimize(opt_object, 0.5*ones(12*t_choice))
+    # this is how you initiate an instance m of the model
+    # m_opt = get_rice() #default if get_rice(objective = "Neutral") set objective = "Negishi" for that objective
+    # then you run the model
+    # run(m_opt)
 
-explore(m_opt)
+    # say you want to change some parameter
+    #like the discount rate
+    # m[:welfare,:rho] = 1.5
+    #or the mitigation fraction, this is how we input the control variable in the optimisation
+    # m[:emissions,:MIU] = 0.5*ones(60,12)
 
-##
+    # the way the optimisation works is that we construc the model, and set a bunch of user defined paramaters, and from that construct the objective
+
+    # mod = get_rice()  # this line seems to do nothing (SL commented it out)
+
+    # number of periods of control
+    t_choice = 29
+    # Maximum time in seconds to run local optimization (in case optimization does not converge).
+    local_stop_time = 500
+    # Relative tolerance criteria for global optimization convergence (will stop if |Δf| / |f| < tolerance from one iteration to the next.)
+    local_tolerance = 1e-12
+    objective = construct_RICE_objective(m_opt,t_choice)
+    constraint = retConstraint(m_opt,t_choice)
+    # set up optimisation# Create an NLopt optimization object.
+    opt_object = Opt(:LN_SBPLX, t_choice*12)
+    # set up constraint
+
+    # bounds on the control variable
+    lower_bounds!(opt_object, zeros(12*t_choice))
+    upper_bounds!(opt_object, ones(12*t_choice))
+    # Set maximum run time.
+    maxtime!(opt_object, local_stop_time)
+    # Set convergence tolerance.
+    ftol_rel!(opt_object, local_tolerance)
+    # Set objective function.
+    max_objective!(opt_object, (x, grad) -> objective(x))
+    # inequality_constraint!(opt_object, (x, grad) -> constraint(x)-0.5) # I commented it out because it throws the following error "ArgumentError: invalid NLopt arguments: invalid algorithm for constraints"
+    max_welfare, optimal_rates, convergence_flag = optimize(opt_object, 0.5*ones(12*t_choice))
+
+    explore(m_opt)
+
+# end
+
+
+
+
+
+
+
+## Optimization code that doesn't work
 # ##
 #
 # # BerBastian's code --> PROBLEM: MIU has two dimensions in RICE (time, region)
