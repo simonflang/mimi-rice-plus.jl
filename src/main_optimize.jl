@@ -3,31 +3,35 @@ using DelimitedFiles
 using CSVFiles
 using DataFrames
 using CSV
-using BlackBoxOptim # Optimization package
-# using RCall  # if I would want to do plots in R
+using RCall
 using NLopt
 
 include("rice2010.jl")
 include("helpers.jl")
 using .Rice2010
 
-# optimization = "Yes"      # "Yes" or "No"
+## Things that need to be set manually
+
+optimization = "Yes"      # "Yes" or "No"
 
 # Set the model version manually in the following components:
 # 1) grosseconomy
 # 2) neteconomy
 
-# Set the optimand manually in the following component
+# Set the optimand manually in:
 # 3) helpers (in "return(m[:welfare, :???])")
 
-# set output directory
-dir_output = "C:/Users/simon/Google Drive/Uni/LSE Master/02_Dissertation/10_Modelling/damage-regressions/data/mimi-rice-output/temporary/"
+# Set the redistribution quantity in:
+# 4) parameters
+
+# Set the results directory and whether the results should be saved and plotted in:
+# 5) save_and_plot
 
 #####################################################################################
 # Non-optimization Run
 # ###################################################################################
 
-# if optimization == "No"
+if optimization == "No"
 
     m = getrice()
 
@@ -40,23 +44,23 @@ dir_output = "C:/Users/simon/Google Drive/Uni/LSE Master/02_Dissertation/10_Mode
     run(m)
     explore(m)
 
-# end
+end
 
 ####################################################################################
 # Optimization Run
 # ##################################################################################
 
-# if optimization == "Yes"
+if optimization == "Yes"
 
-    m_opt = getrice()
+    m = getrice()
 
     marginalemission = 0    # 1 = additional emission pulse; 0 otherwise
-    set_param!(m_opt,:emissions,:marginalemission,marginalemission)
+    set_param!(m,:emissions,:marginalemission,marginalemission)
 
     marginalconsumption = 0    # 1 = additional consumption pulse; 0 otherwise
-    set_param!(m_opt,:neteconomy,:marginalconsumption,marginalconsumption)
+    set_param!(m,:neteconomy,:marginalconsumption,marginalconsumption)
 
-    run(m_opt)
+    run(m)
 
 
     ## RICE Update code
@@ -65,9 +69,9 @@ dir_output = "C:/Users/simon/Google Drive/Uni/LSE Master/02_Dissertation/10_Mode
     # include("mRICE2010.jl")
 
     # this is how you initiate an instance m of the model
-    # m_opt = get_rice() #default if get_rice(objective = "Neutral") set objective = "Negishi" for that objective
+    # m = get_rice() #default if get_rice(objective = "Neutral") set objective = "Negishi" for that objective
     # then you run the model
-    # run(m_opt)
+    # run(m)
 
     # say you want to change some parameter
     #like the discount rate
@@ -85,8 +89,8 @@ dir_output = "C:/Users/simon/Google Drive/Uni/LSE Master/02_Dissertation/10_Mode
     local_stop_time = 500
     # Relative tolerance criteria for global optimization convergence (will stop if |Δf| / |f| < tolerance from one iteration to the next.)
     local_tolerance = 1e-12
-    objective = construct_RICE_objective(m_opt,t_choice)
-    constraint = retConstraint(m_opt,t_choice)
+    objective = construct_RICE_objective(m,t_choice)
+    constraint = retConstraint(m,t_choice)
     # set up optimisation# Create an NLopt optimization object.
     opt_object = Opt(:LN_SBPLX, t_choice*12)
     # set up constraint
@@ -103,11 +107,12 @@ dir_output = "C:/Users/simon/Google Drive/Uni/LSE Master/02_Dissertation/10_Mode
     # inequality_constraint!(opt_object, (x, grad) -> constraint(x)-0.5) # I commented it out because it throws the following error "ArgumentError: invalid NLopt arguments: invalid algorithm for constraints"
     max_welfare, optimal_rates, convergence_flag = optimize(opt_object, 0.5*ones(12*t_choice))
 
-    explore(m_opt)
+    explore(m)
 
-# end
+end
 
 
+include("save_and_plot.jl") # to save the model output
 
 
 

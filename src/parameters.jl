@@ -27,6 +27,15 @@ function getrice2010parameters(filename)
     p[:elasmu] =  getparam_single(f, "B18:B18", regions) # Elasticity of MU of consumption
     p[:prstp] =  getparam_single(f, "B15:B15", regions) # Rate of Social Time Preference
 
+    REDIST =  Array{Float64}(undef, 60)
+    for i=1:2
+        REDIST[i] = 0
+    end
+    for i=3:T
+        REDIST[i] = 0
+    end
+    p[:REDIST] = REDIST
+
     # Population and technology
 
     # Capital elasticity in production function

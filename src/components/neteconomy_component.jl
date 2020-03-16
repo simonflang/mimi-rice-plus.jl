@@ -6,7 +6,7 @@ global damagefunction = "Burke"      # "Burke" (default), "Original"
     regions = Index()
     countries = Index() # NEW: COUNTRY-LEVEL
 
-    YNET = Variable(index=[time, regions]) # Output net of damages equation (trillions 2005 USD per year)
+    YNET = Variable(index=[time, regions]) # Output net of damages equation (trillions 2005 USD per year) & net of redistribution (if applicable)
     Y = Variable(index=[time, regions]) # Gross world product net of abatement and damages (trillions 2005 USD per year)
     I = Variable(index=[time, regions]) # Investment (trillions 2005 USD per year)
     C = Variable(index=[time, regions]) # Consumption (trillions 2005 US dollars per year)
@@ -51,6 +51,9 @@ global damagefunction = "Burke"      # "Burke" (default), "Original"
                 # NEW: Marginal consumption for SCC calculation
                 marginalconsumption = Parameter() # "1" if there is an additional marginal consumption pulse, "0" otherwise
 
+                # NEW: Redistribution
+                REDIST = Parameter(index=[time]) # Redistribution (trillions 2005 USD per year)
+
     function run_timestep(p, v, d, t)
 
         #Define function for YNET
@@ -71,6 +74,10 @@ global damagefunction = "Burke"      # "Burke" (default), "Original"
                 println("Damage function not correctly specified")
             end
         end
+
+        # Redistribution from US to Africa (10 trillion)
+        v.YNET[t,1] = v.YNET[t,1] - p.REDIST[t]
+        v.YNET[t,9] = v.YNET[t,9] + p.REDIST[t]
 
                     # NEW: COUNTRY-LEVEL - Define function for YNET
                     for c in d.countries
