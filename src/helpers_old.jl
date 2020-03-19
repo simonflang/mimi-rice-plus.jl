@@ -98,44 +98,6 @@ function mu_from_tax(tax::Array{Float64,1}, rice_backstop::Array{Float64,2})
     return mu, TAX
 end
 
-### Direct copies from NICE
-
-#Function to calculate emissions control rate as a function of the carbon tax.
-function mu_from_tax(tax::Array{Float64,1}, backstop_p::Array{Float64,2}, theta2::Float64)
-    backstop = backstop_p .* 1000.0
-    pbmax = maximum(backstop, 2)
-    TAX = [0.0; pbmax[2:end]]
-    TAX[2:(length(tax)+1)] = tax
-    mu = min((max(((TAX ./ backstop) .^ (1 / (theta2 - 1.0))), 0.0)), 1.0)
-
-    return mu, TAX
-end
-
-
-# function optimize_nice
-function optimize_nice(objetive_function, m::Mimi.Model, algorithm::Symbol, n_objectives::Int64, upperbound::Array{Float64,1}, stop_time::Int64, tolerance::Float64, theta2::Float64, backstop_price::Array{Float64,2})
-    opt = Opt(algorithm, n_objectives)
-
-    lower_bounds!(opt, zeros(n_objectives))
-    upper_bounds!(opt, upperbound)
-
-    max_objective!(opt, (x, grad) -> objetive_function(x))
-
-    maxtime!(opt, stop_time)
-    ftol_rel!(opt, tolerance)
-
-    (minf,minx,ret) = optimize(opt, (upperbound .* 0.5))
-    println("Convergence result: ", ret)
-
-    mitigation, tax = mu_from_tax(minx, backstop_price, theta2)
-
-    setparameter(m, :emissions, :MIU, mitigation)
-    run(m)
-
-    result = NICE_outputs(inputs, tax, m[:climatedynamics, :TATM], mitigation, m[:emissions, :E], m[:nice_consumption, :quintile_c], m)
-    return result
-end
-
 
 ################################################################################
 # General helpers functions
@@ -182,12 +144,6 @@ function getparam_timeseries(f, range::AbstractString, regions, T)
     end
     return vals
 end
-
-
-
-
-
-
 
 
 
