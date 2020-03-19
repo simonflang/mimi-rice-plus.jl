@@ -84,20 +84,22 @@ if optimization == "Yes"
     # mod = get_rice()  # this line seems to do nothing (SL commented it out)
 
     # number of periods of control
-    t_choice = 29 # why 29?
+    t_choice = 29
     # Maximum time in seconds to run local optimization (in case optimization does not converge).
     local_stop_time = 500
     # Relative tolerance criteria for global optimization convergence (will stop if |Δf| / |f| < tolerance from one iteration to the next.)
     local_tolerance = 1e-12
-    objective = construct_RICE_objective(m,t_choice)
+    #objective = construct_RICE_objective(m,t_choice)
+    objective = construct_nice_objective(m,t_choice)
     constraint = retConstraint(m,t_choice)
     # set up optimisation# Create an NLopt optimization object.
-    opt_object = Opt(:LN_SBPLX, t_choice*12)
+    opt_object = Opt(:LN_SBPLX, t_choice*12)        # RICEupdate algorithm
+    # opt_object = Opt(:LN_BOBYQA, t_choice*12)      # NICE algorithm
     # set up constraint
 
     # bounds on the control variable
     lower_bounds!(opt_object, zeros(12*t_choice))
-    upper_bounds!(opt_object, ones(12*t_choice))
+    upper_bounds!(opt_object, ones(12*t_choice)) # maybe that's the problem (carbon tax exceeds 1; tried 2000*ones and still got the forced error)
     # Set maximum run time.
     maxtime!(opt_object, local_stop_time)
     # Set convergence tolerance.
@@ -105,9 +107,11 @@ if optimization == "Yes"
     # Set objective function.
     max_objective!(opt_object, (x, grad) -> objective(x))
     # inequality_constraint!(opt_object, (x, grad) -> constraint(x)-0.5) # I commented it out because it throws the following error "ArgumentError: invalid NLopt arguments: invalid algorithm for constraints"
-    max_welfare, optimal_rates, convergence_flag = optimize(opt_object, 0.5*ones(12*t_choice))
+    max_welfare, optimal_rates, convergence_flag = optimize(opt_object, 0.5*ones(12*t_choice)) # was 0.5*ones (change back)
 
     explore(m)
+
+    # return TAX
 
 end
 

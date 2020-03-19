@@ -3,8 +3,8 @@
 # ###########################################################################
 
 # Do you want to save the results as CSV and plot the results? ("true" or "false")
-saveresults = true
-plotresults = true
+saveresults = false
+plotresults = false
 
 if saveresults
 

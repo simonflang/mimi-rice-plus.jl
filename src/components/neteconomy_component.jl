@@ -1,6 +1,6 @@
 using Mimi
 
-global damagefunction = "Burke"      # "Burke" (default), "Original"
+global damagefunction = "Original"      # "Burke" (default), "Original"
 
 @defcomp neteconomy begin
     regions = Index()
