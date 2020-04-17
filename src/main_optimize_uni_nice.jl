@@ -13,7 +13,9 @@ include("helpers.jl")
 include("nice.jl")
 using .Rice2010
 
-## Things that need to be set manually
+#####################################################################################
+# Things that need to be set manually
+# ###################################################################################
 
 optimization = "Yes"      # "Yes" or "No"
 
@@ -57,9 +59,9 @@ end
 # ##################################################################################
 
 
-####################################################################################################
-# OPTIMIZATION SETTINGS
-# ###################################################################################################
+#############################
+# Optimization settings
+# ###########################
 
 # Number of objectives (corresponding to how many periods in NICE to optimze over).
 n_objective = 29                # 29 in RICEupdate, 10 in mimi-NICE
@@ -75,9 +77,10 @@ stop_time = 500                 # 500 in RICEupdate, 300 in mimi-NICE
 tolerance = 5e-12               # 1e-12 in RICEupdate
 
 
-####################################################################################################
-# Optimization Run.
-# ###################################################################################################
+#############################
+# Optimization model run
+# ###########################
+
 if optimization == "Yes"
 
     # Create a NICE objective function specific to the user parameter settings.
@@ -91,7 +94,7 @@ if optimization == "Yes"
     println("backstop_opt_values_MAIN: ", backstop_opt_values) # OK
 
     # Optimize NICE and save the results as a custom type `NICE_outputs`.
-    results = optimize_nice(nice_objective, m, opt_algorithm, n_objective, backstop_opt_values, stop_time, tolerance, 2.8, rice_params[:pbacktime]) # theta2 = 2.8
+    results = optimize_nice(nice_objective, m, opt_algorithm, n_objective, backstop_opt_values, stop_time, tolerance, theta2, rice_params[:pbacktime]) # theta2 = 2.8
     println("results_MAIN: ", results)
 
     explore(m)

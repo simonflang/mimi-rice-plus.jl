@@ -60,24 +60,3 @@ function construct_nice_objective()
     println("nice_objective: ", nice_objective)
 end
 # println("nice_objective2: ", nice_objective)
-
-
-
-
-# ### my OLD code
-#     m = getrice()
-#
-#     marginalemission = 0    # 1 = additional emission pulse; 0 otherwise
-#     set_param!(m,:emissions,:marginalemission,marginalemission)
-#
-#     marginalconsumption = 0    # 1 = additional consumption pulse; 0 otherwise
-#     set_param!(m,:neteconomy,:marginalconsumption,marginalconsumption)
-#
-#     run(m)
-#
-#
-#     explore(m)
-#
-#     # return TAX
-#
-# end

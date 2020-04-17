@@ -10,7 +10,9 @@ include("rice2010.jl")
 include("helpers.jl")
 using .Rice2010
 
-## Things that need to be set manually
+#####################################################################################
+# Things that need to be set manually
+# ###################################################################################
 
 optimization = "Yes"      # "Yes" or "No"
 
