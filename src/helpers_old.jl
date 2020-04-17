@@ -62,7 +62,7 @@ function construct_nice_objective(m::Model,t_choice::Int)
 		# Calculate emissions abatement level as a function of the carbon tax.
 		abatement_level, tax = mu_from_tax(tax, rice_backstop) #, 2.8) # abatement level as a function of the tax = mu_from_tax
 
-		setparameter(m, :emissions, :MIU, abatement_level)
+		set_param!(m, :emissions, :MIU, abatement_level)
 
         run(m)
 		return(m[:welfare, :UTILITYNOnegishiNOrescale])  # Negishi: "UTILITY", "UTILITYctryagg"; Non-Negishi: "UTILITYNOnegishiNOrescale", "UTILITYctryaggNOnegishiNOrescale"

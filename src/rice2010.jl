@@ -214,7 +214,7 @@ function getrice(;datafile=joinpath(@__DIR__, "..", "data", "RICE_2010_base_000_
 
     m = constructrice(params)
 
-    return m
+    return m, params # added params (as in NICE)
 end #function
 
 end #module
