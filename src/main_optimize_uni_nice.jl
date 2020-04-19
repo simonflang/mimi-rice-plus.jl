@@ -24,15 +24,18 @@ optimization = "Yes"      # "Yes" or "No"
 # 2) neteconomy
 
 # Set the optimand manually in:
-# 3) helpers (in "return(m[:welfare, :???])")
+# 3) nice (in "return(m[:welfare, :???])")
 
 # Set the redistribution quantity in:
 # 4) parameters
 
-# Set the results directory and whether the results should be saved and plotted in:
-# 5) save_and_plot
+# Set the pure rate of time preference in:
+# 5) parameters
 
-# Exponent of cost control function
+# Set the results directory and whether the results should be saved and plotted in:
+# 6) save_and_plot
+
+# Exponent of cost control function ( = expost2 (in the rest of the model) which is also 2.8)
 theta2 = 2.8
 
 #####################################################################################
@@ -74,7 +77,7 @@ stop_time = 500                 # 500 in RICEupdate, 300 in mimi-NICE
 
 # Relative tolerance criteria for convergence (will stop if |Δf| / |f| is less than tolerance
 # from one iteration to the next.)
-tolerance = 5e-12               # 1e-12 in RICEupdate
+tolerance = 1e-12               # 1e-12 in RICEupdate, 5e-12 in mimi-NICE
 
 
 #############################

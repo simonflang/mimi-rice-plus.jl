@@ -17,6 +17,9 @@ using Mimi
     scale2 = Parameter(index=[regions]) # Additive scaling coefficient
     alpha = Parameter(index=[time, regions])
 
+                # NEW: Pure rate of time preference
+                rho = Parameter() # this replaces the previous formulation via "rr"
+
                 # NEW: WORLD-LEVEL
                 UTILITYctryagg = Variable()
 
@@ -251,26 +254,26 @@ using Mimi
         #Define function for CEMUTOTPER
         for r in d.regions
             if t.t != 60
-                v.CEMUTOTPER[t,r] = v.PERIODU[t,r] * p.l[t,r] * p.rr[t,r]
+                v.CEMUTOTPER[t,r] = v.PERIODU[t,r] * p.l[t,r] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
             else
-                v.CEMUTOTPER[t,r] = v.PERIODU[t,r] * p.l[t,r] * p.rr[t,r] / (1. - ((p.rr[t-1,r] / (1. + 0.015)^10) / p.rr[t-1,r]))
+                v.CEMUTOTPER[t,r] = v.PERIODU[t,r] * p.l[t,r] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
             end
         end
 
                                     for r in d.regions
                                         if t.t != 60
-                                            v.CEMUTOTPERNOnegishi[t,r] = v.PERIODUNOnegishi[t,r] * p.l[t,r] * p.rr[t,r]
+                                            v.CEMUTOTPERNOnegishi[t,r] = v.PERIODUNOnegishi[t,r] * p.l[t,r] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                         else
-                                            v.CEMUTOTPERNOnegishi[t,r] = v.PERIODUNOnegishi[t,r] * p.l[t,r] * p.rr[t,r] / (1. - ((p.rr[t-1,r] / (1. + 0.015)^10) / p.rr[t-1,r]))
+                                            v.CEMUTOTPERNOnegishi[t,r] = v.PERIODUNOnegishi[t,r] * p.l[t,r] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                         end
                                     end
 
                                     # PER CAPITA (i.e. not multiplied with the population)
                                     for r in d.regions
                                         if t.t != 60
-                                            v.CEMUTOTPERNOnegishiPC[t,r] = v.PERIODUNOnegishi[t,r] * p.rr[t,r]
+                                            v.CEMUTOTPERNOnegishiPC[t,r] = v.PERIODUNOnegishi[t,r] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                         else
-                                            v.CEMUTOTPERNOnegishiPC[t,r] = v.PERIODUNOnegishi[t,r] * p.rr[t,r] / (1. - ((p.rr[t-1,r] / (1. + 0.015)^10) / p.rr[t-1,r]))
+                                            v.CEMUTOTPERNOnegishiPC[t,r] = v.PERIODUNOnegishi[t,r] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                         end
                                     end
 
@@ -278,75 +281,75 @@ using Mimi
                     for c in d.countries
                         if p.inregion[c] == 1
                             if t.t != 60
-                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * p.rr[t,1]
+                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                             else
-                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * p.rr[t,1] / (1. - ((p.rr[t-1,1] / (1. + 0.015)^10) / p.rr[t-1,1]))
+                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                             end
                         elseif p.inregion[c] == 2
                             if t.t != 60
-                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * p.rr[t,2]
+                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                             else
-                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * p.rr[t,2] / (1. - ((p.rr[t-1,2] / (1. + 0.015)^10) / p.rr[t-1,2]))
+                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                             end
                         elseif p.inregion[c] == 3
                             if t.t != 60
-                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * p.rr[t,3]
+                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                             else
-                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * p.rr[t,3] / (1. - ((p.rr[t-1,3] / (1. + 0.015)^10) / p.rr[t-1,3]))
+                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                             end
                         elseif p.inregion[c] == 4
                             if t.t != 60
-                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * p.rr[t,4]
+                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                             else
-                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * p.rr[t,4] / (1. - ((p.rr[t-1,4] / (1. + 0.015)^10) / p.rr[t-1,4]))
+                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                             end
                         elseif p.inregion[c] == 5
                             if t.t != 60
-                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * p.rr[t,5]
+                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                             else
-                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * p.rr[t,5] / (1. - ((p.rr[t-1,5] / (1. + 0.015)^10) / p.rr[t-1,5]))
+                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                             end
                         elseif p.inregion[c] == 6
                             if t.t != 60
-                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * p.rr[t,6]
+                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                             else
-                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * p.rr[t,6] / (1. - ((p.rr[t-1,6] / (1. + 0.015)^10) / p.rr[t-1,6]))
+                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                             end
                         elseif p.inregion[c] == 7
                             if t.t != 60
-                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * p.rr[t,7]
+                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                             else
-                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * p.rr[t,7] / (1. - ((p.rr[t-1,7] / (1. + 0.015)^10) / p.rr[t-1,7]))
+                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                             end
                         elseif p.inregion[c] == 8
                             if t.t != 60
-                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * p.rr[t,8]
+                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                             else
-                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * p.rr[t,8] / (1. - ((p.rr[t-1,8] / (1. + 0.015)^10) / p.rr[t-1,8]))
+                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                             end
                         elseif p.inregion[c] == 9
                             if t.t != 60
-                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * p.rr[t,9]
+                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                             else
-                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * p.rr[t,9] / (1. - ((p.rr[t-1,9] / (1. + 0.015)^10) / p.rr[t-1,9]))
+                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                             end
                         elseif p.inregion[c] == 10
                             if t.t != 60
-                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * p.rr[t,10]
+                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                             else
-                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * p.rr[t,10] / (1. - ((p.rr[t-1,10] / (1. + 0.015)^10) / p.rr[t-1,10]))
+                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                             end
                         elseif p.inregion[c] == 11
                             if t.t != 60
-                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * p.rr[t,11]
+                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                             else
-                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * p.rr[t,11] / (1. - ((p.rr[t-1,11] / (1. + 0.015)^10) / p.rr[t-1,11]))
+                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                             end
                         elseif p.inregion[c] == 12
                             if t.t != 60
-                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * p.rr[t,12]
+                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                             else
-                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * p.rr[t,12] / (1. - ((p.rr[t-1,12] / (1. + 0.015)^10) / p.rr[t-1,12]))
+                                v.CEMUTOTPERctry[t,c] = v.PERIODUctry[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                             end
                         else
                             println("country does not belong to any region")
@@ -357,75 +360,75 @@ using Mimi
                                     for c in d.countries
                                         if p.inregion[c] == 1
                                             if t.t != 60
-                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * p.rr[t,1]
+                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                             else
-                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * p.rr[t,1] / (1. - ((p.rr[t-1,1] / (1. + 0.015)^10) / p.rr[t-1,1]))
+                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                             end
                                         elseif p.inregion[c] == 2
                                             if t.t != 60
-                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * p.rr[t,2]
+                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                             else
-                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * p.rr[t,2] / (1. - ((p.rr[t-1,2] / (1. + 0.015)^10) / p.rr[t-1,2]))
+                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                             end
                                         elseif p.inregion[c] == 3
                                             if t.t != 60
-                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * p.rr[t,3]
+                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                             else
-                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * p.rr[t,3] / (1. - ((p.rr[t-1,3] / (1. + 0.015)^10) / p.rr[t-1,3]))
+                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                             end
                                         elseif p.inregion[c] == 4
                                             if t.t != 60
-                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * p.rr[t,4]
+                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                             else
-                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * p.rr[t,4] / (1. - ((p.rr[t-1,4] / (1. + 0.015)^10) / p.rr[t-1,4]))
+                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                             end
                                         elseif p.inregion[c] == 5
                                             if t.t != 60
-                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * p.rr[t,5]
+                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                             else
-                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * p.rr[t,5] / (1. - ((p.rr[t-1,5] / (1. + 0.015)^10) / p.rr[t-1,5]))
+                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                             end
                                         elseif p.inregion[c] == 6
                                             if t.t != 60
-                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * p.rr[t,6]
+                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                             else
-                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * p.rr[t,6] / (1. - ((p.rr[t-1,6] / (1. + 0.015)^10) / p.rr[t-1,6]))
+                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                             end
                                         elseif p.inregion[c] == 7
                                             if t.t != 60
-                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * p.rr[t,7]
+                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                             else
-                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * p.rr[t,7] / (1. - ((p.rr[t-1,7] / (1. + 0.015)^10) / p.rr[t-1,7]))
+                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                             end
                                         elseif p.inregion[c] == 8
                                             if t.t != 60
-                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * p.rr[t,8]
+                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                             else
-                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * p.rr[t,8] / (1. - ((p.rr[t-1,8] / (1. + 0.015)^10) / p.rr[t-1,8]))
+                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                             end
                                         elseif p.inregion[c] == 9
                                             if t.t != 60
-                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * p.rr[t,9]
+                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                             else
-                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * p.rr[t,9] / (1. - ((p.rr[t-1,9] / (1. + 0.015)^10) / p.rr[t-1,9]))
+                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                             end
                                         elseif p.inregion[c] == 10
                                             if t.t != 60
-                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * p.rr[t,10]
+                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                             else
-                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * p.rr[t,10] / (1. - ((p.rr[t-1,10] / (1. + 0.015)^10) / p.rr[t-1,10]))
+                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                             end
                                         elseif p.inregion[c] == 11
                                             if t.t != 60
-                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * p.rr[t,11]
+                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                             else
-                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * p.rr[t,11] / (1. - ((p.rr[t-1,11] / (1. + 0.015)^10) / p.rr[t-1,11]))
+                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                             end
                                         elseif p.inregion[c] == 12
                                             if t.t != 60
-                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * p.rr[t,12]
+                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                             else
-                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * p.rr[t,12] / (1. - ((p.rr[t-1,12] / (1. + 0.015)^10) / p.rr[t-1,12]))
+                                                v.CEMUTOTPERctryNOnegishi[t,c] = v.PERIODUctryNOnegishi[t,c] * p.lctry[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                             end
                                         else
                                             println("country does not belong to any region")
@@ -436,75 +439,75 @@ using Mimi
                                         for c in d.countries
                                             if p.inregion[c] == 1
                                                 if t.t != 60
-                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * p.rr[t,1]
+                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                                 else
-                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * p.rr[t,1] / (1. - ((p.rr[t-1,1] / (1. + 0.015)^10) / p.rr[t-1,1]))
+                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                                 end
                                             elseif p.inregion[c] == 2
                                                 if t.t != 60
-                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * p.rr[t,2]
+                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                                 else
-                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * p.rr[t,2] / (1. - ((p.rr[t-1,2] / (1. + 0.015)^10) / p.rr[t-1,2]))
+                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                                 end
                                             elseif p.inregion[c] == 3
                                                 if t.t != 60
-                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * p.rr[t,3]
+                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                                 else
-                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * p.rr[t,3] / (1. - ((p.rr[t-1,3] / (1. + 0.015)^10) / p.rr[t-1,3]))
+                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                                 end
                                             elseif p.inregion[c] == 4
                                                 if t.t != 60
-                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * p.rr[t,4]
+                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                                 else
-                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * p.rr[t,4] / (1. - ((p.rr[t-1,4] / (1. + 0.015)^10) / p.rr[t-1,4]))
+                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                                 end
                                             elseif p.inregion[c] == 5
                                                 if t.t != 60
-                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * p.rr[t,5]
+                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                                 else
-                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * p.rr[t,5] / (1. - ((p.rr[t-1,5] / (1. + 0.015)^10) / p.rr[t-1,5]))
+                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                                 end
                                             elseif p.inregion[c] == 6
                                                 if t.t != 60
-                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * p.rr[t,6]
+                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                                 else
-                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * p.rr[t,6] / (1. - ((p.rr[t-1,6] / (1. + 0.015)^10) / p.rr[t-1,6]))
+                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                                 end
                                             elseif p.inregion[c] == 7
                                                 if t.t != 60
-                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * p.rr[t,7]
+                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                                 else
-                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * p.rr[t,7] / (1. - ((p.rr[t-1,7] / (1. + 0.015)^10) / p.rr[t-1,7]))
+                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                                 end
                                             elseif p.inregion[c] == 8
                                                 if t.t != 60
-                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * p.rr[t,8]
+                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                                 else
-                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * p.rr[t,8] / (1. - ((p.rr[t-1,8] / (1. + 0.015)^10) / p.rr[t-1,8]))
+                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                                 end
                                             elseif p.inregion[c] == 9
                                                 if t.t != 60
-                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * p.rr[t,9]
+                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                                 else
-                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * p.rr[t,9] / (1. - ((p.rr[t-1,9] / (1. + 0.015)^10) / p.rr[t-1,9]))
+                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                                 end
                                             elseif p.inregion[c] == 10
                                                 if t.t != 60
-                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * p.rr[t,10]
+                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                                 else
-                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * p.rr[t,10] / (1. - ((p.rr[t-1,10] / (1. + 0.015)^10) / p.rr[t-1,10]))
+                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                                 end
                                             elseif p.inregion[c] == 11
                                                 if t.t != 60
-                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * p.rr[t,11]
+                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                                 else
-                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * p.rr[t,11] / (1. - ((p.rr[t-1,11] / (1. + 0.015)^10) / p.rr[t-1,11]))
+                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                                 end
                                             elseif p.inregion[c] == 12
                                                 if t.t != 60
-                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * p.rr[t,12]
+                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1)))
                                                 else
-                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * p.rr[t,12] / (1. - ((p.rr[t-1,12] / (1. + 0.015)^10) / p.rr[t-1,12]))
+                                                    v.CEMUTOTPERctryNOnegishiPC[t,c] = v.PERIODUctryNOnegishi[t,c] * (1 / (1.0 + p.rho)^(10*(t.t-1))) / (1. - (((1 / (1.0 + p.rho)^(10*(t.t-2))) / (1. + 0.015)^10) / (1 / (1.0 + p.rho)^(10*(t.t-2)))))
                                                 end
                                             else
                                                 println("country does not belong to any region")
@@ -521,7 +524,7 @@ using Mimi
             if is_first(t)
                 v.REGCUMCEMUTOTPER[t,r] = v.CEMUTOTPER[t,r]
             else
-                v.REGCUMCEMUTOTPER[t,r] = v.REGCUMCEMUTOTPER[t-1, r] + v.CEMUTOTPER[t,r]
+                v.REGCUMCEMUTOTPER[t,r] = v.REGCUMCEMUTOTPER[t.t-1, r] + v.CEMUTOTPER[t,r]
             end
         end
 
@@ -530,7 +533,7 @@ using Mimi
                                         if is_first(t)
                                             v.REGCUMCEMUTOTPERNOnegishi[t,r] = v.CEMUTOTPERNOnegishi[t,r]
                                         else
-                                            v.REGCUMCEMUTOTPERNOnegishi[t,r] = v.REGCUMCEMUTOTPERNOnegishi[t-1, r] + v.CEMUTOTPERNOnegishi[t,r]
+                                            v.REGCUMCEMUTOTPERNOnegishi[t,r] = v.REGCUMCEMUTOTPERNOnegishi[t.t-1, r] + v.CEMUTOTPERNOnegishi[t,r]
                                         end
                                     end
 
@@ -539,7 +542,7 @@ using Mimi
                                         if is_first(t)
                                             v.REGCUMCEMUTOTPERNOnegishiPC[t,r] = v.CEMUTOTPERNOnegishiPC[t,r]
                                         else
-                                            v.REGCUMCEMUTOTPERNOnegishiPC[t,r] = v.REGCUMCEMUTOTPERNOnegishiPC[t-1, r] + v.CEMUTOTPERNOnegishiPC[t,r]
+                                            v.REGCUMCEMUTOTPERNOnegishiPC[t,r] = v.REGCUMCEMUTOTPERNOnegishiPC[t.t-1, r] + v.CEMUTOTPERNOnegishiPC[t,r]
                                         end
                                     end
 
@@ -548,7 +551,7 @@ using Mimi
                         if is_first(t)
                             v.REGCUMCEMUTOTPERctry[t,c] = v.CEMUTOTPERctry[t,c]
                         else
-                            v.REGCUMCEMUTOTPERctry[t,c] = v.REGCUMCEMUTOTPERctry[t-1, c] + v.CEMUTOTPERctry[t,c]
+                            v.REGCUMCEMUTOTPERctry[t,c] = v.REGCUMCEMUTOTPERctry[t.t-1, c] + v.CEMUTOTPERctry[t,c]
                         end
                     end
 
@@ -557,7 +560,7 @@ using Mimi
                                         if is_first(t)
                                             v.REGCUMCEMUTOTPERctryNOnegishi[t,c] = v.CEMUTOTPERctryNOnegishi[t,c]
                                         else
-                                            v.REGCUMCEMUTOTPERctryNOnegishi[t,c] = v.REGCUMCEMUTOTPERctryNOnegishi[t-1, c] + v.CEMUTOTPERctryNOnegishi[t,c]
+                                            v.REGCUMCEMUTOTPERctryNOnegishi[t,c] = v.REGCUMCEMUTOTPERctryNOnegishi[t.t-1, c] + v.CEMUTOTPERctryNOnegishi[t,c]
                                         end
                                     end
 
@@ -566,7 +569,7 @@ using Mimi
                                         if is_first(t)
                                             v.REGCUMCEMUTOTPERctryNOnegishiPC[t,c] = v.CEMUTOTPERctryNOnegishiPC[t,c]
                                         else
-                                            v.REGCUMCEMUTOTPERctryNOnegishiPC[t,c] = v.REGCUMCEMUTOTPERctryNOnegishiPC[t-1, c] + v.CEMUTOTPERctryNOnegishiPC[t,c]
+                                            v.REGCUMCEMUTOTPERctryNOnegishiPC[t,c] = v.REGCUMCEMUTOTPERctryNOnegishiPC[t.t-1, c] + v.CEMUTOTPERctryNOnegishiPC[t,c]
                                         end
                                     end
 

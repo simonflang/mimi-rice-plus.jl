@@ -51,7 +51,7 @@ function construct_nice_objective()
         set_param!(m, :emissions, :MIU, abatement_level)
         run(m)
         # explore(m) # I added this to see what's been happening
-        return m[:welfare, :UTILITY]      # Negishi: "UTILITY", "UTILITYctryagg"; Non-Negishi: "UTILITYNOnegishiNOrescale", "UTILITYctryaggNOnegishiNOrescale"
+        return m[:welfare, :UTILITYNOnegishiNOrescale]      # Negishi: "UTILITY", "UTILITYctryagg"; Non-Negishi: "UTILITYNOnegishiNOrescale", "UTILITYctryaggNOnegishiNOrescale"
         println("utility: ", m[:welfare, :UTILITYNOnegishiNOrescale])
     end
     # println("utility2: ", m[:welfare, :UTILITYNOnegishiNOrescale])

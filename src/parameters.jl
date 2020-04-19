@@ -27,15 +27,26 @@ function getrice2010parameters(filename)
     p[:elasmu] =  getparam_single(f, "B18:B18", regions) # Elasticity of MU of consumption
     p[:prstp] =  getparam_single(f, "B15:B15", regions) # Rate of Social Time Preference
 
+
+################################################################################
+# Set Redistribution quantity
+# ##############################################################################
+
     REDIST =  Array{Float64}(undef, 60)
     for i=1:2
         REDIST[i] = 0
     end
     for i=3:T
-        REDIST[i] = 0
+        REDIST[i] = 5       # set total redistribution quantity from period 3 (2025) onwards (trillions 2005 USD per year)
     end
     p[:REDIST] = REDIST
 
+
+# Set Pure rate of time preference
+
+p[:rho] = 0.015         # 0.015 is standard in RICE, 0.001 is what Stern used
+
+################################################################################
     # Population and technology
 
     # Capital elasticity in production function

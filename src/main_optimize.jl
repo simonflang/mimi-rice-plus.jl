@@ -26,8 +26,11 @@ optimization = "Yes"      # "Yes" or "No"
 # Set the redistribution quantity in:
 # 4) parameters
 
+# Set the pure rate of time preference in:
+# 5) parameters
+
 # Set the results directory and whether the results should be saved and plotted in:
-# 5) save_and_plot
+# 6) save_and_plot
 
 #####################################################################################
 # Non-optimization Run

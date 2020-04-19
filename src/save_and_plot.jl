@@ -3,13 +3,13 @@
 # ###########################################################################
 
 # Do you want to save the results as CSV and plot the results? ("true" or "false")
-saveresults = false
-plotresults = false
+saveresults = true
+plotresults = true
 
 if saveresults
 
     # Name of folder to store your results in (a folder will be created with this name).
-    results_folder = string("Opt", optimization, "_country_burke_rd-0-US-Afr_NW")
+    results_folder = string("Opt", optimization, "_region_burke_uni_rd-5-US-Afr")
     # dir_output = joinpath("C:/Users/simon/Google Drive/Uni/LSE Master/02_Dissertation/10_Modelling/damage-regressions/data/mimi-rice-output/rc_project/temporary/", results_folder)
 
     # set output directory and make the results_folder
@@ -172,7 +172,8 @@ if plotresults
             labs(title = paste($results_folder)) +
             # coord_cartesian(ylim = c(0, 6.7)) +
             # graphFormat +
-            theme_bw()
+            theme_bw() +
+            theme(plot.title = element_text(size = 8))
           theme(axis.text = element_blank(), axis.line = element_blank(), axis.ticks = element_blank())
 
           print(dataplot)
@@ -217,7 +218,8 @@ if plotresults
           labs(title = paste($results_folder)) +
           # coord_cartesian(ylim = c(0, 400)) +
           # graphFormat +
-          theme_bw()
+          theme_bw() +
+          theme(plot.title = element_text(size = 8))
         theme(axis.text = element_blank(), axis.line = element_blank(), axis.ticks = element_blank())
         # if(withtitles) data_CvR <- data_CvR +
           labs(title = paste("SLR Damages in trillions 2015 USD per year"))
@@ -266,6 +268,7 @@ if plotresults
             # coord_cartesian(ylim = c(0, 400)) +
             # graphFormat +
             theme_bw() +
+            theme(plot.title = element_text(size = 8)) +
             theme(legend.position = "none")
           theme(axis.text = element_blank(), axis.line = element_blank(), axis.ticks = element_blank())
           # if(withtitles) data_CvR <- data_CvR +
@@ -332,6 +335,7 @@ if plotresults
     region_plot("Y")
     region_plot("I")
     region_plot("S")
+    region_plot("YNET")
 
     #
     region_plot("CEMUTOTPERNOnegishi")
