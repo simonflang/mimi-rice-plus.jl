@@ -200,7 +200,7 @@ function constructrice(p)
 
                 # NEW: Pure rate of time preference
                 set_param!(m, :welfare, :rho, p[:rho])
-                
+
     connect_param!(m, :welfare, :CPC, :neteconomy, :CPC)
 
                 # NEW: COUNTRY-LEVEL - Per Capita Consumption

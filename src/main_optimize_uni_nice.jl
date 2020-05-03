@@ -26,14 +26,15 @@ optimization = "Yes"      # "Yes" or "No"
 # Set the optimand manually in:
 # 3) nice (in "return(m[:welfare, :???])")
 
-# Set the redistribution quantity in:
+# Set the redistribution quantity and the redistribution scheme in:
 # 4) parameters
+# 5) neteconomy
 
 # Set the pure rate of time preference in:
-# 5) parameters
+# 6) parameters
 
 # Set the results directory and whether the results should be saved and plotted in:
-# 6) save_and_plot
+# 7) save_and_plot
 
 # Exponent of cost control function ( = expost2 (in the rest of the model) which is also 2.8)
 theta2 = 2.8
@@ -44,7 +45,7 @@ theta2 = 2.8
 
 if optimization == "No"
 
-    m = getrice()
+    m, rice_params = getrice()
 
     marginalemission = 0    # 1 = additional emission pulse; 0 otherwise
     set_param!(m,:emissions,:marginalemission,marginalemission)
@@ -67,7 +68,7 @@ end
 # ###########################
 
 # Number of objectives (corresponding to how many periods in NICE to optimze over).
-n_objective = 29                # 29 in RICEupdate, 10 in mimi-NICE
+n_objective = 40                # 29 in RICEupdate, 10 in mimi-NICE, I always do 40 (just to be safe)
 
 #Optimization algorithm (:symbol). See options at http://ab-initio.mit.edu/wiki/index.php/NLopt_Algorithms
 opt_algorithm = :LN_SBPLX      # LN_SBPLX in RICEupdate

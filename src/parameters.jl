@@ -33,18 +33,18 @@ function getrice2010parameters(filename)
 # ##############################################################################
 
     REDIST =  Array{Float64}(undef, 60)
-    for i=1:2
+    for i=1
         REDIST[i] = 0
     end
-    for i=3:T
-        REDIST[i] = 5       # set total redistribution quantity from period 3 (2025) onwards (trillions 2005 USD per year)
+    for i=2:T
+        REDIST[i] = 10       # set total redistribution quantity from period 2 (2015) onwards (trillions 2005 USD per year)
     end
     p[:REDIST] = REDIST
 
 
 # Set Pure rate of time preference
 
-p[:rho] = 0.015         # 0.015 is standard in RICE, 0.001 is what Stern used
+    p[:rho] = 0.001         # 0.015 is standard in RICE, 0.001 is what Stern used
 
 ################################################################################
     # Population and technology

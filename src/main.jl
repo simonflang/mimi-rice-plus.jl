@@ -20,7 +20,7 @@ dir_output = "C:/Users/simon/Google Drive/Uni/LSE Master/02_Dissertation/10_Mode
 ####  Orginal Model  #################################################################################################
 ######################################################################################################################
 
-m = getrice()
+m, rice_params = getrice()
 
 marginalemission = 0    # 1 = additional emission pulse; 0 otherwise
 set_param!(m,:emissions,:marginalemission,marginalemission)

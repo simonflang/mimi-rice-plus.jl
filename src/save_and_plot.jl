@@ -9,7 +9,7 @@ plotresults = true
 if saveresults
 
     # Name of folder to store your results in (a folder will be created with this name).
-    results_folder = string("Opt", optimization, "_region_burke_uni_rd-5-US-Afr")
+    results_folder = string("Opt", optimization, "_region_original_rho0.1pc_rd-10-4H-8L")
     # dir_output = joinpath("C:/Users/simon/Google Drive/Uni/LSE Master/02_Dissertation/10_Modelling/damage-regressions/data/mimi-rice-output/rc_project/temporary/", results_folder)
 
     # set output directory and make the results_folder
@@ -90,6 +90,7 @@ if saveresults
     writedlm(string(dir_output, "YNET.csv"), m[:neteconomy, :YNET], ",")
     writedlm(string(dir_output, "Yctry.csv"), m[:neteconomy, :Yctry], ",")
     writedlm(string(dir_output, "REDIST.csv"), m[:neteconomy, :REDIST], ",")
+    writedlm(string(dir_output, "REDISTreg.csv"), m[:neteconomy, :REDISTreg], ",")
     writedlm(string(dir_output, "I.csv"), m[:neteconomy, :I], ",") # Investment (trillions 2005 USD per year)
     writedlm(string(dir_output, "Ictry.csv"), m[:neteconomy, :Ictry], ",")
     writedlm(string(dir_output, "S.csv"), m[:neteconomy, :S], ",")
@@ -291,6 +292,9 @@ if plotresults
     global_plot("TOTALSLR")
 
     ## REGION PLOTS
+
+    # Region redistribution
+    region_plot("REDISTreg")
 
     # Damages plots
     region_plot("DAMAGES")

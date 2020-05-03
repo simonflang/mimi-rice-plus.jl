@@ -23,22 +23,23 @@ optimization = "Yes"      # "Yes" or "No"
 # Set the optimand manually in:
 # 3) helpers (in "return(m[:welfare, :???])")
 
-# Set the redistribution quantity in:
+# Set the redistribution quantity and the rdistribution scheme in:
 # 4) parameters
+# 5) neteconomy
 
 # Set the pure rate of time preference in:
-# 5) parameters
+# 6) parameters
 
 # Set the results directory and whether the results should be saved and plotted in:
-# 6) save_and_plot
+# 7) save_and_plot
 
 #####################################################################################
 # Non-optimization Run
 # ###################################################################################
 
-if optimization == "No"
+if optimization == "Yes"
 
-    m = getrice()
+    m, rice_params = getrice()
 
     marginalemission = 0    # 1 = additional emission pulse; 0 otherwise
     set_param!(m,:emissions,:marginalemission,marginalemission)
@@ -57,7 +58,7 @@ end
 
 if optimization == "Yes"
 
-    m = getrice()
+    m, rice_params = getrice()
 
     marginalemission = 0    # 1 = additional emission pulse; 0 otherwise
     set_param!(m,:emissions,:marginalemission,marginalemission)
@@ -89,7 +90,7 @@ if optimization == "Yes"
     # mod = get_rice()  # this line seems to do nothing (SL commented it out)
 
     # number of periods of control
-    t_choice = 29 # why 29?
+    t_choice = 40            # 29 in RICEupdate, 10 in mimi-NICE, I always do 40 (just to be safe)
     # Maximum time in seconds to run local optimization (in case optimization does not converge).
     local_stop_time = 500
     # Relative tolerance criteria for global optimization convergence (will stop if |Δf| / |f| < tolerance from one iteration to the next.)

@@ -86,7 +86,7 @@ function construct_RICE_objective(m::Model,t_choice::Int)
         end
         set_param!(m, :emissions, :MIU, MIU)
         run(m)
-		return(m[:welfare, :UTILITY])  # Negishi: "UTILITY", "UTILITYctryagg"; Non-Negishi: "UTILITYNOnegishiNOrescale", "UTILITYctryaggNOnegishiNOrescale"
+		return(m[:welfare, :UTILITYNOnegishiNOrescale])  # Negishi: "UTILITY", "UTILITYctryagg"; Non-Negishi: "UTILITYNOnegishiNOrescale", "UTILITYctryaggNOnegishiNOrescale"
 	end
 
     # Return the objective function.
