@@ -42,9 +42,10 @@ function getrice2010parameters(filename)
     p[:REDIST] = REDIST
 
 
-# Set Pure rate of time preference
+# Set Pure rate of time preference and the elasticity of marginal utility of consumption
 
     p[:rho] = 0.001         # 0.015 is standard in RICE, 0.001 is what Stern used
+    p[:eta] = 4           # 1.5 is standard in RICE, expert opinions range from 0 to 5, with a mean of 1.35 and a median and mode of 1 (Drupp et al., 2018)
 
 ################################################################################
     # Population and technology

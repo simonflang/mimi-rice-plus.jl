@@ -9,7 +9,7 @@ plotresults = true
 if saveresults
 
     # Name of folder to store your results in (a folder will be created with this name).
-    results_folder = string("Opt", optimization, "_region_original_rho0.1pc_rd-10-4H-8L")
+    results_folder = string("Opt", optimization, "_region_original_rho0.1pc_eta4_rd-10-4H-8L")
     # dir_output = joinpath("C:/Users/simon/Google Drive/Uni/LSE Master/02_Dissertation/10_Modelling/damage-regressions/data/mimi-rice-output/rc_project/temporary/", results_folder)
 
     # set output directory and make the results_folder

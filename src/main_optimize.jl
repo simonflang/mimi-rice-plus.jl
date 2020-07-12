@@ -17,8 +17,8 @@ using .Rice2010
 optimization = "Yes"      # "Yes" or "No"
 
 # Set the model version manually in the following components:
-# 1) grosseconomy
-# 2) neteconomy
+# 1) grosseconomy ("region" or "country")
+# 2) neteconomy ("Burke" or "original")
 
 # Set the optimand manually in:
 # 3) helpers (in "return(m[:welfare, :???])")
@@ -90,7 +90,7 @@ if optimization == "Yes"
     # mod = get_rice()  # this line seems to do nothing (SL commented it out)
 
     # number of periods of control
-    t_choice = 40            # 29 in RICEupdate, 10 in mimi-NICE, I always do 40 (just to be safe)
+    t_choice = 40            # 29 in RICEupdate, 10 in mimi-NICE, I always do 40 (just to be safe), maximum is 59
     # Maximum time in seconds to run local optimization (in case optimization does not converge).
     local_stop_time = 500
     # Relative tolerance criteria for global optimization convergence (will stop if |Δf| / |f| < tolerance from one iteration to the next.)

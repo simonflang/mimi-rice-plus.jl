@@ -20,8 +20,8 @@ using .Rice2010
 optimization = "Yes"      # "Yes" or "No"
 
 # Set the model version manually in the following components:
-# 1) grosseconomy
-# 2) neteconomy
+# 1) grosseconomy ("region" or "country")
+# 2) neteconomy ("Burke" or "original")
 
 # Set the optimand manually in:
 # 3) nice (in "return(m[:welfare, :???])")

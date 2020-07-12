@@ -95,7 +95,7 @@ global redistribution = "H4-L8"        # "US-Afr", "H4-L4", "H4-L8", "H4-Afr"
             v.REDISTreg[t,9] = p.REDIST[t] * (p.l[t,9]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12]))
             v.REDISTreg[t,12] = p.REDIST[t] * (p.l[t,12]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12]))
 
-            # No Donor nor recipient (Russia, Eurasia, MidEast, LatAm)
+            # Not Donor nor recipient (Russia, Eurasia, MidEast, LatAm)
             v.REDISTreg[t,4] = 0
             v.REDISTreg[t,5] = 0
             v.REDISTreg[t,8] = 0
@@ -124,7 +124,7 @@ global redistribution = "H4-L8"        # "US-Afr", "H4-L4", "H4-L8", "H4-Afr"
             v.REDISTreg[t,3] = - p.REDIST[t] * (v.YNET[t,3]/(v.YNET[t,1] + v.YNET[t,2] + v.YNET[t,3] + v.YNET[t,11]))
             v.REDISTreg[t,11] = - p.REDIST[t] * (v.YNET[t,11]/(v.YNET[t,1] + v.YNET[t,2] + v.YNET[t,3] + v.YNET[t,11]))
 
-            #Recipients (China, India, Africa, OthAsia)
+            #Recipients (China, India, Africa, OthAsia, Russia, Eurasia, MidEast, LatAm)
             v.REDISTreg[t,6] = p.REDIST[t] * (p.l[t,6]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
             v.REDISTreg[t,7] = p.REDIST[t] * (p.l[t,7]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
             v.REDISTreg[t,9] = p.REDIST[t] * (p.l[t,9]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))

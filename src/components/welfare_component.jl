@@ -19,6 +19,7 @@ using Mimi
 
                 # NEW: Pure rate of time preference
                 rho = Parameter() # this replaces the previous formulation via "rr"
+                eta = Parameter() # this replaces the previous formulation via "elasmu"
 
                 # NEW: WORLD-LEVEL
                 UTILITYctryagg = Variable()
@@ -70,95 +71,95 @@ using Mimi
 
         #Define function for PERIODU #NEED TO ADD IF STATEMENT LIKE IN JUMP MODEL OR IS THAT ONLY ISSUES WHEN ELASMU = 1.0?
         for r in d.regions
-            if p.elasmu[r]==1.
+            if p.eta==1.
                 v.PERIODU[t,r] = log(p.CPC[t,r]) * p.alpha[t,r]
             else
-                v.PERIODU[t,r] = ((1. / (1. - p.elasmu[r])) * (p.CPC[t,r])^(1. - p.elasmu[r]) + 1.) * p.alpha[t,r]
+                v.PERIODU[t,r] = ((1. / (1. - p.eta)) * (p.CPC[t,r])^(1. - p.eta) + 1.) * p.alpha[t,r]
             end
         end
 
                                     # NEW: Define function for PERIODU without NEGISHI weights
                                     for r in d.regions
-                                        if p.elasmu[r]==1.
+                                        if p.eta==1.
                                             v.PERIODUNOnegishi[t,r] = log(p.CPC[t,r])
                                         else
-                                            v.PERIODUNOnegishi[t,r] = ((1. / (1. - p.elasmu[r])) * (p.CPC[t,r])^(1. - p.elasmu[r]) + 1.)
+                                            v.PERIODUNOnegishi[t,r] = ((1. / (1. - p.eta)) * (p.CPC[t,r])^(1. - p.eta) + 1.)
                                         end
                                     end
 
                     # NEW: COUNTRY-LEVEL - Define function for PERIODU #NEED TO ADD IF STATEMENT LIKE IN JUMP MODEL OR IS THAT ONLY ISSUES WHEN ELASMU = 1.0?
                     for c in d.countries
                         if p.inregion[c] == 1
-                            if p.elasmu[1]==1
+                            if p.eta==1
                                 v.PERIODUctry[t,c] = log(p.CPCctry[t,c]) * p.alpha[t,1]
                             else
-                                v.PERIODUctry[t,c] = ((1. / (1. - p.elasmu[1])) * (p.CPCctry[t,c])^(1. - p.elasmu[1]) + 1.) * p.alpha[t,1]
+                                v.PERIODUctry[t,c] = ((1. / (1. - p.eta)) * (p.CPCctry[t,c])^(1. - p.eta) + 1.) * p.alpha[t,1]
                             end
                         elseif p.inregion[c] == 2
-                            if p.elasmu[2]==1
+                            if p.eta==1
                                 v.PERIODUctry[t,c] = log(p.CPCctry[t,c]) * p.alpha[t,2]
                             else
-                                v.PERIODUctry[t,c] = ((1. / (1. - p.elasmu[2])) * (p.CPCctry[t,c])^(1. - p.elasmu[2]) + 1.) * p.alpha[t,2]
+                                v.PERIODUctry[t,c] = ((1. / (1. - p.eta)) * (p.CPCctry[t,c])^(1. - p.eta) + 1.) * p.alpha[t,2]
                             end
                         elseif p.inregion[c] == 3
-                            if p.elasmu[2]==1
+                            if p.eta==1
                                 v.PERIODUctry[t,c] = log(p.CPCctry[t,c]) * p.alpha[t,2]
                             else
-                                v.PERIODUctry[t,c] = ((1. / (1. - p.elasmu[3])) * (p.CPCctry[t,c])^(1. - p.elasmu[3]) + 1.) * p.alpha[t,3]
+                                v.PERIODUctry[t,c] = ((1. / (1. - p.eta)) * (p.CPCctry[t,c])^(1. - p.eta) + 1.) * p.alpha[t,3]
                             end
                         elseif p.inregion[c] == 4
-                            if p.elasmu[2]==1
+                            if p.eta==1
                                 v.PERIODUctry[t,c] = log(p.CPCctry[t,c]) * p.alpha[t,2]
                             else
-                                v.PERIODUctry[t,c] = ((1. / (1. - p.elasmu[4])) * (p.CPCctry[t,c])^(1. - p.elasmu[4]) + 1.) * p.alpha[t,4]
+                                v.PERIODUctry[t,c] = ((1. / (1. - p.eta)) * (p.CPCctry[t,c])^(1. - p.eta) + 1.) * p.alpha[t,4]
                             end
                         elseif p.inregion[c] == 5
-                            if p.elasmu[2]==1
+                            if p.eta==1
                                 v.PERIODUctry[t,c] = log(p.CPCctry[t,c]) * p.alpha[t,2]
                             else
-                                v.PERIODUctry[t,c] = ((1. / (1. - p.elasmu[5])) * (p.CPCctry[t,c])^(1. - p.elasmu[5]) + 1.) * p.alpha[t,5]
+                                v.PERIODUctry[t,c] = ((1. / (1. - p.eta)) * (p.CPCctry[t,c])^(1. - p.eta) + 1.) * p.alpha[t,5]
                             end
                         elseif p.inregion[c] == 6
-                            if p.elasmu[2]==1
+                            if p.eta==1
                                 v.PERIODUctry[t,c] = log(p.CPCctry[t,c]) * p.alpha[t,2]
                             else
-                                v.PERIODUctry[t,c] = ((1. / (1. - p.elasmu[6])) * (p.CPCctry[t,c])^(1. - p.elasmu[6]) + 1.) * p.alpha[t,6]
+                                v.PERIODUctry[t,c] = ((1. / (1. - p.eta)) * (p.CPCctry[t,c])^(1. - p.eta) + 1.) * p.alpha[t,6]
                             end
                         elseif p.inregion[c] == 7
-                            if p.elasmu[2]==1
+                            if p.eta==1
                                 v.PERIODUctry[t,c] = log(p.CPCctry[t,c]) * p.alpha[t,2]
                             else
-                                v.PERIODUctry[t,c] = ((1. / (1. - p.elasmu[7])) * (p.CPCctry[t,c])^(1. - p.elasmu[7]) + 1.) * p.alpha[t,7]
+                                v.PERIODUctry[t,c] = ((1. / (1. - p.eta)) * (p.CPCctry[t,c])^(1. - p.eta) + 1.) * p.alpha[t,7]
                             end
                         elseif p.inregion[c] == 8
-                            if p.elasmu[2]==1
+                            if p.eta==1
                                 v.PERIODUctry[t,c] = log(p.CPCctry[t,c]) * p.alpha[t,2]
                             else
-                                v.PERIODUctry[t,c] = ((1. / (1. - p.elasmu[8])) * (p.CPCctry[t,c])^(1. - p.elasmu[8]) + 1.) * p.alpha[t,8]
+                                v.PERIODUctry[t,c] = ((1. / (1. - p.eta)) * (p.CPCctry[t,c])^(1. - p.eta) + 1.) * p.alpha[t,8]
                             end
                         elseif p.inregion[c] == 9
-                            if p.elasmu[2]==1
+                            if p.eta==1
                                 v.PERIODUctry[t,c] = log(p.CPCctry[t,c]) * p.alpha[t,2]
                             else
-                                v.PERIODUctry[t,c] = ((1. / (1. - p.elasmu[9])) * (p.CPCctry[t,c])^(1. - p.elasmu[9]) + 1.) * p.alpha[t,9]
+                                v.PERIODUctry[t,c] = ((1. / (1. - p.eta)) * (p.CPCctry[t,c])^(1. - p.eta) + 1.) * p.alpha[t,9]
                             end
                         elseif p.inregion[c] == 10
-                            if p.elasmu[2]==1
+                            if p.eta==1
                                 v.PERIODUctry[t,c] = log(p.CPCctry[t,c]) * p.alpha[t,2]
                             else
-                                v.PERIODUctry[t,c] = ((1. / (1. - p.elasmu[10])) * (p.CPCctry[t,c])^(1. - p.elasmu[10]) + 1.) * p.alpha[t,10]
+                                v.PERIODUctry[t,c] = ((1. / (1. - p.eta)) * (p.CPCctry[t,c])^(1. - p.eta) + 1.) * p.alpha[t,10]
                             end
                         elseif p.inregion[c] == 11
-                            if p.elasmu[2]==1
+                            if p.eta==1
                                 v.PERIODUctry[t,c] = log(p.CPCctry[t,c]) * p.alpha[t,2]
                             else
-                                v.PERIODUctry[t,c] = ((1. / (1. - p.elasmu[11])) * (p.CPCctry[t,c])^(1. - p.elasmu[11]) + 1.) * p.alpha[t,11]
+                                v.PERIODUctry[t,c] = ((1. / (1. - p.eta)) * (p.CPCctry[t,c])^(1. - p.eta) + 1.) * p.alpha[t,11]
                             end
                         elseif p.inregion[c] == 12
-                            if p.elasmu[2]==1
+                            if p.eta==1
                                 v.PERIODUctry[t,c] = log(p.CPCctry[t,c]) * p.alpha[t,2]
                             else
-                                v.PERIODUctry[t,c] = ((1. / (1. - p.elasmu[12])) * (p.CPCctry[t,c])^(1. - p.elasmu[12]) + 1.) * p.alpha[t,12]
+                                v.PERIODUctry[t,c] = ((1. / (1. - p.eta)) * (p.CPCctry[t,c])^(1. - p.eta) + 1.) * p.alpha[t,12]
                             end
                         else
                             println("country does not belong to any region")
@@ -169,76 +170,76 @@ using Mimi
                                     # NEW: COUNTRY-LEVEL - Define function for PERIODU without NEGISHI weights
                                     for c in d.countries
                                         if p.inregion[c] == 1
-                                            if p.elasmu[1]==1
+                                            if p.eta==1
                                                 v.PERIODUctryNOnegishi[t,c] = log(p.CPCctry[t,c])
                                             else
-                                                v.PERIODUctryNOnegishi[t,c] = ((1. / (1. - p.elasmu[1])) * (p.CPCctry[t,c])^(1. - p.elasmu[1]) + 1.)
+                                                v.PERIODUctryNOnegishi[t,c] = ((1. / (1. - p.eta)) * (p.CPCctry[t,c])^(1. - p.eta) + 1.)
                                             end
                                         elseif p.inregion[c] == 2
-                                            if p.elasmu[2]==1
+                                            if p.eta==1
                                                 v.PERIODUctryNOnegishi[t,c] = log(p.CPCctry[t,c])
                                             else
-                                                v.PERIODUctryNOnegishi[t,c] = ((1. / (1. - p.elasmu[2])) * (p.CPCctry[t,c])^(1. - p.elasmu[2]) + 1.)
+                                                v.PERIODUctryNOnegishi[t,c] = ((1. / (1. - p.eta)) * (p.CPCctry[t,c])^(1. - p.eta) + 1.)
                                             end
                                         elseif p.inregion[c] == 3
-                                            if p.elasmu[2]==1
+                                            if p.eta==1
                                                 v.PERIODUctryNOnegishi[t,c] = log(p.CPCctry[t,c])
                                             else
-                                                v.PERIODUctryNOnegishi[t,c] = ((1. / (1. - p.elasmu[3])) * (p.CPCctry[t,c])^(1. - p.elasmu[3]) + 1.)
+                                                v.PERIODUctryNOnegishi[t,c] = ((1. / (1. - p.eta)) * (p.CPCctry[t,c])^(1. - p.eta) + 1.)
                                             end
                                         elseif p.inregion[c] == 4
-                                            if p.elasmu[2]==1
+                                            if p.eta==1
                                                 v.PERIODUctryNOnegishi[t,c] = log(p.CPCctry[t,c])
                                             else
-                                                v.PERIODUctryNOnegishi[t,c] = ((1. / (1. - p.elasmu[4])) * (p.CPCctry[t,c])^(1. - p.elasmu[4]) + 1.)
+                                                v.PERIODUctryNOnegishi[t,c] = ((1. / (1. - p.eta)) * (p.CPCctry[t,c])^(1. - p.eta) + 1.)
                                             end
                                         elseif p.inregion[c] == 5
-                                            if p.elasmu[2]==1
+                                            if p.eta==1
                                                 v.PERIODUctryNOnegishi[t,c] = log(p.CPCctry[t,c])
                                             else
-                                                v.PERIODUctryNOnegishi[t,c] = ((1. / (1. - p.elasmu[5])) * (p.CPCctry[t,c])^(1. - p.elasmu[5]) + 1.)
+                                                v.PERIODUctryNOnegishi[t,c] = ((1. / (1. - p.eta)) * (p.CPCctry[t,c])^(1. - p.eta) + 1.)
                                             end
                                         elseif p.inregion[c] == 6
-                                            if p.elasmu[2]==1
+                                            if p.eta==1
                                                 v.PERIODUctryNOnegishi[t,c] = log(p.CPCctry[t,c])
                                             else
-                                                v.PERIODUctryNOnegishi[t,c] = ((1. / (1. - p.elasmu[6])) * (p.CPCctry[t,c])^(1. - p.elasmu[6]) + 1.)
+                                                v.PERIODUctryNOnegishi[t,c] = ((1. / (1. - p.eta)) * (p.CPCctry[t,c])^(1. - p.eta) + 1.)
                                             end
                                         elseif p.inregion[c] == 7
-                                            if p.elasmu[2]==1
+                                            if p.eta==1
                                                 v.PERIODUctryNOnegishi[t,c] = log(p.CPCctry[t,c])
                                             else
-                                                v.PERIODUctryNOnegishi[t,c] = ((1. / (1. - p.elasmu[7])) * (p.CPCctry[t,c])^(1. - p.elasmu[7]) + 1.)
+                                                v.PERIODUctryNOnegishi[t,c] = ((1. / (1. - p.eta)) * (p.CPCctry[t,c])^(1. - p.eta) + 1.)
                                             end
                                         elseif p.inregion[c] == 8
-                                            if p.elasmu[2]==1
+                                            if p.eta==1
                                                 v.PERIODUctryNOnegishi[t,c] = log(p.CPCctry[t,c])
                                             else
-                                                v.PERIODUctryNOnegishi[t,c] = ((1. / (1. - p.elasmu[8])) * (p.CPCctry[t,c])^(1. - p.elasmu[8]) + 1.)
+                                                v.PERIODUctryNOnegishi[t,c] = ((1. / (1. - p.eta)) * (p.CPCctry[t,c])^(1. - p.eta) + 1.)
                                             end
                                         elseif p.inregion[c] == 9
-                                            if p.elasmu[2]==1
+                                            if p.eta==1
                                                 v.PERIODUctryNOnegishi[t,c] = log(p.CPCctry[t,c])
                                             else
-                                                v.PERIODUctryNOnegishi[t,c] = ((1. / (1. - p.elasmu[9])) * (p.CPCctry[t,c])^(1. - p.elasmu[9]) + 1.)
+                                                v.PERIODUctryNOnegishi[t,c] = ((1. / (1. - p.eta)) * (p.CPCctry[t,c])^(1. - p.eta) + 1.)
                                             end
                                         elseif p.inregion[c] == 10
-                                            if p.elasmu[2]==1
+                                            if p.eta==1
                                                 v.PERIODUctryNOnegishi[t,c] = log(p.CPCctry[t,c])
                                             else
-                                                v.PERIODUctryNOnegishi[t,c] = ((1. / (1. - p.elasmu[10])) * (p.CPCctry[t,c])^(1. - p.elasmu[10]) + 1.)
+                                                v.PERIODUctryNOnegishi[t,c] = ((1. / (1. - p.eta)) * (p.CPCctry[t,c])^(1. - p.eta) + 1.)
                                             end
                                         elseif p.inregion[c] == 11
-                                            if p.elasmu[2]==1
+                                            if p.eta==1
                                                 v.PERIODUctryNOnegishi[t,c] = log(p.CPCctry[t,c])
                                             else
-                                                v.PERIODUctryNOnegishi[t,c] = ((1. / (1. - p.elasmu[11])) * (p.CPCctry[t,c])^(1. - p.elasmu[11]) + 1.)
+                                                v.PERIODUctryNOnegishi[t,c] = ((1. / (1. - p.eta)) * (p.CPCctry[t,c])^(1. - p.eta) + 1.)
                                             end
                                         elseif p.inregion[c] == 12
-                                            if p.elasmu[2]==1
+                                            if p.eta==1
                                                 v.PERIODUctryNOnegishi[t,c] = log(p.CPCctry[t,c])
                                             else
-                                                v.PERIODUctryNOnegishi[t,c] = ((1. / (1. - p.elasmu[12])) * (p.CPCctry[t,c])^(1. - p.elasmu[12]) + 1.)
+                                                v.PERIODUctryNOnegishi[t,c] = ((1. / (1. - p.eta)) * (p.CPCctry[t,c])^(1. - p.eta) + 1.)
                                             end
                                         else
                                             println("country does not belong to any region")
