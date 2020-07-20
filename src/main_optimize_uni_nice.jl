@@ -26,11 +26,11 @@ optimization = "Yes"      # "Yes" or "No"
 # Set the optimand manually in:
 # 3) nice (in "return(m[:welfare, :???])")
 
-# Set the redistribution quantity and the redistribution scheme in:
+# Set the redistribution base quantity and the rdistribution scheme in:
 # 4) parameters
 # 5) neteconomy
 
-# Set the pure rate of time preference in:
+# Set the pure rate of time preference & elasticity of marginal utility of consumption in:
 # 6) parameters
 
 # Set the results directory and whether the results should be saved and plotted in:

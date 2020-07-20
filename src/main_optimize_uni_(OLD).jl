@@ -21,8 +21,9 @@ optimization = "Yes"      # "Yes" or "No"
 # Set the optimand manually in:
 # 3) helpers (in "return(m[:welfare, :???])")
 
-# Set the redistribution quantity in:
+# Set the redistribution base quantity and the rdistribution scheme in:
 # 4) parameters
+# 5) neteconomy
 
 # Set the results directory and whether the results should be saved and plotted in:
 # 5) save_and_plot

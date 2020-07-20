@@ -188,7 +188,7 @@ function constructrice(p)
             connect_param!(m, :neteconomy, :DAMAGESOLD, :damages, :DAMAGESOLD)
 
             # NEW: REDISTRIBUTION
-            set_param!(m, :neteconomy, :REDIST, p[:REDIST])
+            set_param!(m, :neteconomy, :REDISTbase, p[:REDISTbase])
 
     # WELFARE COMPONENT
     set_param!(m, :welfare, :l, p[:l])

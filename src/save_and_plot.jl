@@ -9,7 +9,7 @@ plotresults = true
 if saveresults
 
     # Name of folder to store your results in (a folder will be created with this name).
-    results_folder = string("Opt", optimization, "_region_original_rho0.1pc_eta4_rd-10-4H-8L")
+    results_folder = string("Opt", optimization, "_region_original_uni_eta4_rd-10-4H-8L-GDP")
     # dir_output = joinpath("C:/Users/simon/Google Drive/Uni/LSE Master/02_Dissertation/10_Modelling/damage-regressions/data/mimi-rice-output/rc_project/temporary/", results_folder)
 
     # set output directory and make the results_folder
@@ -88,9 +88,13 @@ if saveresults
     writedlm(string(dir_output, "CPCctry.csv"), m[:neteconomy, :CPCctry], ",")
     writedlm(string(dir_output, "Y.csv"), m[:neteconomy, :Y], ",")
     writedlm(string(dir_output, "YNET.csv"), m[:neteconomy, :YNET], ",")
+    writedlm(string(dir_output, "YNETpr.csv"), m[:neteconomy, :YNETpr], ",")
     writedlm(string(dir_output, "Yctry.csv"), m[:neteconomy, :Yctry], ",")
+    writedlm(string(dir_output, "REDISTbase.csv"), m[:neteconomy, :REDISTbase], ",")
     writedlm(string(dir_output, "REDIST.csv"), m[:neteconomy, :REDIST], ",")
     writedlm(string(dir_output, "REDISTreg.csv"), m[:neteconomy, :REDISTreg], ",")
+    writedlm(string(dir_output, "REDISTregperYNET.csv"), m[:neteconomy, :REDISTregperYNET], ",")
+    writedlm(string(dir_output, "REDISTregperYNETpr.csv"), m[:neteconomy, :REDISTregperYNETpr], ",")
     writedlm(string(dir_output, "I.csv"), m[:neteconomy, :I], ",") # Investment (trillions 2005 USD per year)
     writedlm(string(dir_output, "Ictry.csv"), m[:neteconomy, :Ictry], ",")
     writedlm(string(dir_output, "S.csv"), m[:neteconomy, :S], ",")
@@ -289,12 +293,15 @@ if plotresults
     global_plot("CCA")
     global_plot("etree")
     global_plot("REDIST")
+    global_plot("REDISTbase")
     global_plot("TOTALSLR")
 
     ## REGION PLOTS
 
     # Region redistribution
     region_plot("REDISTreg")
+    region_plot("REDISTregperYNET")
+    region_plot("REDISTregperYNETpr")
 
     # Damages plots
     region_plot("DAMAGES")
@@ -340,6 +347,7 @@ if plotresults
     region_plot("I")
     region_plot("S")
     region_plot("YNET")
+    region_plot("YNETpr")
 
     #
     region_plot("CEMUTOTPERNOnegishi")

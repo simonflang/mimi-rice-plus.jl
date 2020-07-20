@@ -29,23 +29,26 @@ function getrice2010parameters(filename)
 
 
 ################################################################################
-# Set Redistribution quantity
+# Set Redistribution quantity in the base period
 # ##############################################################################
 
-    REDIST =  Array{Float64}(undef, 60)
+    REDISTbase =  Array{Float64}(undef, 60)
     for i=1
-        REDIST[i] = 0
+        REDISTbase[i] = 0
     end
-    for i=2:T
-        REDIST[i] = 10       # set total redistribution quantity from period 2 (2015) onwards (trillions 2005 USD per year)
+    for i=2
+        REDISTbase[i] = 0.8240 * 0.045   # USD 0.045 trillion/year is the average OECD to non-OECD climate finance (per year) in 2015 and 2016 (Oliver et al. 2018); the factor 0.8240 converts 2015 USD to 2005 USD (Source: World Bank data bank)
     end
-    p[:REDIST] = REDIST
+    for i=3:T
+        REDISTbase[i] = 0.6875 * 0       # set total redistribution base quantity from period 3 (2025) onwards (trillions 2005 USD per year); the factor 0.6875 converts 2025 USD (estimated by the 10 year average inflaction prior 2020) to 2005 USD (Source: World Bank data bank)
+    end
+    p[:REDISTbase] = REDISTbase
 
 
 # Set Pure rate of time preference and the elasticity of marginal utility of consumption
 
-    p[:rho] = 0.001         # 0.015 is standard in RICE, 0.001 is what Stern used
-    p[:eta] = 4           # 1.5 is standard in RICE, expert opinions range from 0 to 5, with a mean of 1.35 and a median and mode of 1 (Drupp et al., 2018)
+    p[:rho] = 0.015         # 0.015 is standard in RICE, 0.001 is what Stern used
+    p[:eta] = 1.5           # 1.5 is standard in RICE, expert opinions range from 0 to 5, with a mean of 1.35 and a median and mode of 1 (Drupp et al., 2018)
 
 ################################################################################
     # Population and technology
