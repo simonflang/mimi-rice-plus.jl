@@ -67,6 +67,13 @@ function constructrice(p)
 
     connect_param!(m, :emissions, :YGROSS, :grosseconomy, :YGROSS)
 
+        # NEW: Foreign Abatement
+        # connect_param!(m, :emissions, :REDIST, :neteconomy, :REDISTreg)
+        set_param!(m, :emissions, :l, p[:l])
+        set_param!(m, :emissions, :REDISTbase, p[:REDISTbase])
+
+        connect_param!(m, :emissions, :YNET, :neteconomy, :YNET)
+
     # NEW: COUNTRY-LEVEL - YGROSSctry
     connect_param!(m, :emissions, :YGROSSctry, :grosseconomy, :YGROSSctry)
     set_param!(m, :emissions, :inregion, p[:inregion])
@@ -189,6 +196,9 @@ function constructrice(p)
 
             # NEW: REDISTRIBUTION
             set_param!(m, :neteconomy, :REDISTbase, p[:REDISTbase])
+            # set_param!(m, :neteconomy, :REDISTreg, p[:REDISTreg])
+            connect_param!(m, :neteconomy, :REDISTreg, :emissions, :REDISTreg)
+            connect_param!(m, :neteconomy, :REDIST, :emissions, :REDIST)
 
     # WELFARE COMPONENT
     set_param!(m, :welfare, :l, p[:l])

@@ -40,7 +40,7 @@ function getrice2010parameters(filename)
         REDISTbase[i] = 0.8240 * 0.045   # USD 0.045 trillion/year is the average OECD to non-OECD climate finance (per year) in 2015 and 2016 (Oliver et al. 2018); the factor 0.8240 converts 2015 USD to 2005 USD (Source: World Bank data bank)
     end
     for i=3:T
-        REDISTbase[i] = 0.6875 * 0       # set total redistribution base quantity from period 3 (2025) onwards (trillions 2005 USD per year); the factor 0.6875 converts 2025 USD (estimated by the 10 year average inflaction prior 2020) to 2005 USD (Source: World Bank data bank)
+        REDISTbase[i] = 0.6875 * 0.1       # set total redistribution base quantity from period 3 (2025) onwards (trillions 2005 USD per year); the factor 0.6875 converts 2025 USD (estimated by the 10 year average inflaction prior 2020) to 2005 USD (Source: World Bank data bank)
     end
     p[:REDISTbase] = REDISTbase
 

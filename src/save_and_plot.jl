@@ -9,7 +9,7 @@ plotresults = true
 if saveresults
 
     # Name of folder to store your results in (a folder will be created with this name).
-    results_folder = string("Opt", optimization, "_region_original_uni_eta4_rd-10-4H-8L-GDP")
+    results_folder = string("Opt", optimization, "_region_original_rd-0.1-4H-8L-GDP_FAtest20-CondRedisttoEIND-REDISTreg-t")
     # dir_output = joinpath("C:/Users/simon/Google Drive/Uni/LSE Master/02_Dissertation/10_Modelling/damage-regressions/data/mimi-rice-output/rc_project/temporary/", results_folder)
 
     # set output directory and make the results_folder
@@ -68,9 +68,16 @@ if saveresults
     writedlm(string(dir_output, "CPRICE.csv"), m[:emissions, :CPRICE], ",")
     writedlm(string(dir_output, "E.csv"), m[:emissions, :E], ",")
     writedlm(string(dir_output, "EIND.csv"), m[:emissions, :EIND], ",") # Industrial emissions (GtC per year)
+    writedlm(string(dir_output, "EINDforeign.csv"), m[:emissions, :EINDforeign], ",") # Industrial emissions (GtC per year)
+    writedlm(string(dir_output, "EINDdomestic.csv"), m[:emissions, :EINDdomestic], ",") # Industrial emissions (GtC per year)
     writedlm(string(dir_output, "etree.csv"), m[:emissions, :etree], ",")
     writedlm(string(dir_output, "MCABATE.csv"), m[:emissions, :MCABATE], ",")
     writedlm(string(dir_output, "MIU.csv"), m[:emissions, :MIU], ",") # Emissions Control Rate GHGs
+    writedlm(string(dir_output, "MIUforeign.csv"), m[:emissions, :MIUforeign], ",") # Emissions Control Rate GHGs
+    writedlm(string(dir_output, "MIUtotal.csv"), m[:emissions, :MIUtotal], ",") # Emissions Control Rate GHGs
+    writedlm(string(dir_output, "MIUtotalactual.csv"), m[:emissions, :MIUtotalactual], ",") # Emissions Control Rate GHGs
+    writedlm(string(dir_output, "ABATECOSTtotal.csv"), m[:emissions, :ABATECOSTtotal], ",")
+    writedlm(string(dir_output, "ABATECOSTforeign.csv"), m[:emissions, :ABATECOSTforeign], ",")
     writedlm(string(dir_output, "pbacktime.csv"), m[:emissions, :pbacktime], ",")
 
     # Gross Economy
@@ -95,6 +102,8 @@ if saveresults
     writedlm(string(dir_output, "REDISTreg.csv"), m[:neteconomy, :REDISTreg], ",")
     writedlm(string(dir_output, "REDISTregperYNET.csv"), m[:neteconomy, :REDISTregperYNET], ",")
     writedlm(string(dir_output, "REDISTregperYNETpr.csv"), m[:neteconomy, :REDISTregperYNETpr], ",")
+    writedlm(string(dir_output, "REDISTregperYNETpre.csv"), m[:neteconomy, :REDISTregperYNETpre], ",")
+    writedlm(string(dir_output, "REDISTregperYNETprepr.csv"), m[:neteconomy, :REDISTregperYNETprepr], ",")
     writedlm(string(dir_output, "I.csv"), m[:neteconomy, :I], ",") # Investment (trillions 2005 USD per year)
     writedlm(string(dir_output, "Ictry.csv"), m[:neteconomy, :Ictry], ",")
     writedlm(string(dir_output, "S.csv"), m[:neteconomy, :S], ",")
@@ -302,6 +311,18 @@ if plotresults
     region_plot("REDISTreg")
     region_plot("REDISTregperYNET")
     region_plot("REDISTregperYNETpr")
+    region_plot("REDISTregperYNETpre")
+    region_plot("REDISTregperYNETprepr")
+
+    # Foreign abatement
+    region_plot("MIUtotal")
+    region_plot("MIUtotalactual")
+    region_plot("MIUforeign")
+    region_plot("ABATECOSTtotal")
+    region_plot("ABATECOSTforeign")
+    region_plot("EINDforeign")
+    region_plot("EINDdomestic")
+
 
     # Damages plots
     region_plot("DAMAGES")

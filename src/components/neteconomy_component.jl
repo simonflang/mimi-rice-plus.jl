@@ -1,7 +1,7 @@
 using Mimi
 
 global damagefunction = "Original"         # "Burke" (default), "Original"
-global redistribution = "H4-L8-GDP"        # "US-Afr", "H4-L4", "H4-L8", "H4-Afr", "H4-L8-GDP"
+global redistribution = "H4-L8-GDPpre-cond"        # "US-Afr", "H4-L4", "H4-L8", "H4-Afr", "H4-L8-GDP", "H4-L8-GDPpre"
 
 @defcomp neteconomy begin
     regions = Index()
@@ -55,10 +55,15 @@ global redistribution = "H4-L8-GDP"        # "US-Afr", "H4-L4", "H4-L8", "H4-Afr
                 # NEW: Redistribution
                 REDISTbase = Parameter(index=[time]) # Redistribution in the base year (trillions 2005 USD per year) - for some redistribution schemes, the actual redistribution quantity grows relative to the base quantity
                 REDIST = Variable(index=[time]) # Actual redistribution (trillions 2005 USD per year)
-                REDISTreg = Variable(index=[time, regions]) # Regional Redistribution (trillions 2005 USD per year)
+                REDIST = Parameter(index=[time]) # Actual redistribution (trillions 2005 USD per year)
+                # REDISTreg = Variable(index=[time, regions]) # Regional Redistribution (trillions 2005 USD per year)
+                REDISTreg = Parameter(index=[time, regions]) # Regional Redistribution (trillions 2005 USD per year)
                 REDISTregperYNET = Variable(index=[time, regions]) # Regional Redistribution per regional YNET (fraction)
                 REDISTregperYNETpr = Variable(index=[time, regions]) # Regional Redistribution per regional YNETpr (fraction)
                 YNETpr = Variable(index=[time, regions]) # YNET post redistribution (trillions 2005 USD per year)
+
+                REDISTregperYNETpre = Variable(index=[time, regions]) # Regional Redistribution per regional YNET of the previous period (fraction)
+                REDISTregperYNETprepr = Variable(index=[time, regions]) # Regional Redistribution per regional YNETpr of the previous period (fraction)
 
     function run_timestep(p, v, d, t)
 
@@ -185,7 +190,7 @@ for r in d.regions
 
             v.YNETpr[t,9] = v.YNET[t,9] + v.REDIST[t]
 
-        elseif redistribution == "H4-L8-GDP"
+        elseif redistribution == "H4-L8-GDP"      # calculation based on sp (same period), not previous period
             #Donors (US, EU, Japan, OHI); note that in the last term t=3 (2025) indicates that "developed countries intend to continue their existing collective mobilization goal [of USD 100 billion/year] through 2025" (UNFCCC, 2020)
             if t.t <= 2
                 v.REDISTreg[t,1] = - p.REDISTbase[t] * (v.YNET[t,1]/(v.YNET[t,1] + v.YNET[t,2] + v.YNET[t,3] + v.YNET[t,11]))
@@ -241,6 +246,276 @@ for r in d.regions
 
                 v.REDISTregperYNET[t,r] = v.REDISTreg[t,r] / v.YNET[t,r]
                 v.REDISTregperYNETpr[t,r] = v.REDISTreg[t,r] / v.YNETpr[t,r]
+
+
+            elseif redistribution == "H4-L8-GDPpre-cond"     # calculation based on the previous (pre) period
+                #Donors (US, EU, Japan, OHI); note that in the last term t=3 (2025) indicates that "developed countries intend to continue their existing collective mobilization goal [of USD 100 billion/year] through 2025" (UNFCCC, 2020)
+
+                    # YNET after Redistribution (pr = post redistribution)
+                    v.YNETpr[t,1] = v.YNET[t,1] + p.REDISTreg[t,1]
+                    v.YNETpr[t,2] = v.YNET[t,2] + p.REDISTreg[t,2]
+                    v.YNETpr[t,3] = v.YNET[t,3] + p.REDISTreg[t,3]
+                    v.YNETpr[t,11] = v.YNET[t,11] + p.REDISTreg[t,11]
+
+                    v.YNETpr[t,6] = v.YNET[t,6] + p.REDISTreg[t,6] #CHNAGE that
+                    v.YNETpr[t,7] = v.YNET[t,7] + p.REDISTreg[t,7]
+                    v.YNETpr[t,9] = v.YNET[t,9] + p.REDISTreg[t,9]
+                    v.YNETpr[t,12] = v.YNET[t,12] + p.REDISTreg[t,12]
+
+                    v.YNETpr[t,4] = v.YNET[t,4] + p.REDISTreg[t,4]
+                    v.YNETpr[t,5] = v.YNET[t,5] + p.REDISTreg[t,5]
+                    v.YNETpr[t,8] = v.YNET[t,8] + p.REDISTreg[t,8]
+                    v.YNETpr[t,10] = v.YNET[t,10] + p.REDISTreg[t,10]
+
+                    v.REDIST[t] = p.REDIST[t] # just to be able to save REDIST from neteconomcy
+
+                    v.REDISTregperYNET[t,r] = p.REDISTreg[t,r] / v.YNET[t,r]
+                    v.REDISTregperYNETpr[t,r] = p.REDISTreg[t,r] / v.YNETpr[t,r]
+
+                    if t.t == 1
+                        v.REDISTregperYNETpre[t,r] = p.REDISTreg[t,r] / v.YNET[t,r]     # note that REDISTreg is 0 in period 1 by default
+                        v.REDISTregperYNETprepr[t,r] = p.REDISTreg[t,r] / v.YNETpr[t,r]
+                    else
+                        v.REDISTregperYNETpre[t,r] = p.REDISTreg[t,r] / v.YNET[t-1,r]
+                        v.REDISTregperYNETprepr[t,r] = p.REDISTreg[t,r] / v.YNETpr[t-1,r]
+                    end
+
+        elseif redistribution == "H4-L8-GDPpre-works"     # calculation based on the previous (pre) period
+            #Donors (US, EU, Japan, OHI); note that in the last term t=3 (2025) indicates that "developed countries intend to continue their existing collective mobilization goal [of USD 100 billion/year] through 2025" (UNFCCC, 2020)
+            if t.t == 1
+
+                v.REDISTreg[t,1] = - p.REDISTbase[t] * (v.YNET[t,1]/(v.YNET[t,1] + v.YNET[t,2] + v.YNET[t,3] + v.YNET[t,11]))   # note REDISTbase[1] is 0 by default
+                v.REDISTreg[t,2] = - p.REDISTbase[t] * (v.YNET[t,2]/(v.YNET[t,1] + v.YNET[t,2] + v.YNET[t,3] + v.YNET[t,11]))
+                v.REDISTreg[t,3] = - p.REDISTbase[t] * (v.YNET[t,3]/(v.YNET[t,1] + v.YNET[t,2] + v.YNET[t,3] + v.YNET[t,11]))
+                v.REDISTreg[t,11] = - p.REDISTbase[t] * (v.YNET[t,11]/(v.YNET[t,1] + v.YNET[t,2] + v.YNET[t,3] + v.YNET[t,11]))
+
+                v.REDIST[t] = p.REDISTbase[t]       # note REDISTbase[1] is 0 by default, so REDIST[1] is 0 by default
+
+                #Recipients (China, India, Africa, OthAsia, Russia, Eurasia, MidEast, LatAm)
+                v.REDISTreg[t,6] = v.REDIST[t] * (p.l[t,6]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,7] = v.REDIST[t] * (p.l[t,7]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,9] = v.REDIST[t] * (p.l[t,9]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,12] = v.REDIST[t] * (p.l[t,12]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,4] = v.REDIST[t] * (p.l[t,4]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,5] = v.REDIST[t] * (p.l[t,5]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,8] = v.REDIST[t] * (p.l[t,8]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,10] = v.REDIST[t] * (p.l[t,10]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+
+            elseif t.t == 2
+
+                    v.REDISTreg[t,1] = - p.REDISTbase[t] * (v.YNET[t-1,1]/(v.YNET[t-1,1] + v.YNET[t-1,2] + v.YNET[t-1,3] + v.YNET[t-1,11]))
+                    v.REDISTreg[t,2] = - p.REDISTbase[t] * (v.YNET[t-1,2]/(v.YNET[t-1,1] + v.YNET[t-1,2] + v.YNET[t-1,3] + v.YNET[t-1,11]))
+                    v.REDISTreg[t,3] = - p.REDISTbase[t] * (v.YNET[t-1,3]/(v.YNET[t-1,1] + v.YNET[t-1,2] + v.YNET[t-1,3] + v.YNET[t-1,11]))
+                    v.REDISTreg[t,11] = - p.REDISTbase[t] * (v.YNET[t-1,11]/(v.YNET[t-1,1] + v.YNET[t-1,2] + v.YNET[t-1,3] + v.YNET[t-1,11]))
+
+                    v.REDIST[t] = p.REDISTbase[t]
+
+                    #Recipients (China, India, Africa, OthAsia, Russia, Eurasia, MidEast, LatAm)
+                    v.REDISTreg[t,6] = v.REDIST[t] * (p.l[t,6]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                    v.REDISTreg[t,7] = v.REDIST[t] * (p.l[t,7]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                    v.REDISTreg[t,9] = v.REDIST[t] * (p.l[t,9]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                    v.REDISTreg[t,12] = v.REDIST[t] * (p.l[t,12]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                    v.REDISTreg[t,4] = v.REDIST[t] * (p.l[t,4]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                    v.REDISTreg[t,5] = v.REDIST[t] * (p.l[t,5]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                    v.REDISTreg[t,8] = v.REDIST[t] * (p.l[t,8]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                    v.REDISTreg[t,10] = v.REDIST[t] * (p.l[t,10]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+
+            else
+                v.REDISTreg[t,1] = - p.REDISTbase[t] * (v.YNET[2,1]/(v.YNET[2,1] + v.YNET[2,2] + v.YNET[2,3] + v.YNET[2,11])) * (v.YNET[t-1,1]/v.YNET[2,1])
+                v.REDISTreg[t,2] = - p.REDISTbase[t] * (v.YNET[2,2]/(v.YNET[2,1] + v.YNET[2,2] + v.YNET[2,3] + v.YNET[2,11])) * (v.YNET[t-1,2]/v.YNET[2,2])
+                v.REDISTreg[t,3] = - p.REDISTbase[t] * (v.YNET[2,3]/(v.YNET[2,1] + v.YNET[2,2] + v.YNET[2,3] + v.YNET[2,11])) * (v.YNET[t-1,3]/v.YNET[2,3])
+                v.REDISTreg[t,11] = - p.REDISTbase[t] * (v.YNET[2,11]/(v.YNET[2,1] + v.YNET[2,2] + v.YNET[2,3] + v.YNET[2,11])) * (v.YNET[t-1,11]/v.YNET[2,11])
+
+                v.REDIST[t] = p.REDISTbase[t] * (v.YNET[t-1,1] + v.YNET[t-1,2] + v.YNET[t-1,3] + v.YNET[t-1,11]) / (v.YNET[2,1] + v.YNET[2,2] + v.YNET[2,3] + v.YNET[2,11])
+                # v.REDIST[t] = v.REDISTreg[t,1] + v.REDISTreg[t,2] + v.REDISTreg[t,3] + v.REDISTreg[t,11]
+
+                #Recipients (China, India, Africa, OthAsia, Russia, Eurasia, MidEast, LatAm)
+                v.REDISTreg[t,6] = v.REDIST[t] * (p.l[t,6]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,7] = v.REDIST[t] * (p.l[t,7]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,9] = v.REDIST[t] * (p.l[t,9]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,12] = v.REDIST[t] * (p.l[t,12]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,4] = v.REDIST[t] * (p.l[t,4]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,5] = v.REDIST[t] * (p.l[t,5]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,8] = v.REDIST[t] * (p.l[t,8]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,10] = v.REDIST[t] * (p.l[t,10]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+
+            end
+
+                # YNET after Redistribution (pr = post redistribution)
+                v.YNETpr[t,1] = v.YNET[t,1] + v.REDISTreg[t,1]
+                v.YNETpr[t,2] = v.YNET[t,2] + v.REDISTreg[t,2]
+                v.YNETpr[t,3] = v.YNET[t,3] + v.REDISTreg[t,3]
+                v.YNETpr[t,11] = v.YNET[t,11] + v.REDISTreg[t,11]
+
+                v.YNETpr[t,6] = v.YNET[t,6] + v.REDISTreg[t,6]
+                v.YNETpr[t,7] = v.YNET[t,7] + v.REDISTreg[t,7]
+                v.YNETpr[t,9] = v.YNET[t,9] + v.REDISTreg[t,9]
+                v.YNETpr[t,12] = v.YNET[t,12] + v.REDISTreg[t,12]
+
+                v.YNETpr[t,4] = v.YNET[t,4] + v.REDISTreg[t,4]
+                v.YNETpr[t,5] = v.YNET[t,5] + v.REDISTreg[t,5]
+                v.YNETpr[t,8] = v.YNET[t,8] + v.REDISTreg[t,8]
+                v.YNETpr[t,10] = v.YNET[t,10] + v.REDISTreg[t,10]
+
+                v.REDISTregperYNET[t,r] = v.REDISTreg[t,r] / v.YNET[t,r]
+                v.REDISTregperYNETpr[t,r] = v.REDISTreg[t,r] / v.YNETpr[t,r]
+
+                if t.t == 1
+                    v.REDISTregperYNETpre[t,r] = v.REDISTreg[t,r] / v.YNET[t,r]     # note that REDISTreg is 0 in period 1 by default
+                    v.REDISTregperYNETprepr[t,r] = v.REDISTreg[t,r] / v.YNETpr[t,r]
+                else
+                    v.REDISTregperYNETpre[t,r] = v.REDISTreg[t,r] / v.YNET[t-1,r]
+                    v.REDISTregperYNETprepr[t,r] = v.REDISTreg[t,r] / v.YNETpr[t-1,r]
+                end
+
+        elseif redistribution == "H4-L8-GDPpre_OLD"     # calculation based on the previous (pre) period
+            #Donors (US, EU, Japan, OHI); note that in the last term t=3 (2025) indicates that "developed countries intend to continue their existing collective mobilization goal [of USD 100 billion/year] through 2025" (UNFCCC, 2020)
+            if t.t == 1
+                #     is_first(t)
+                #     v.REDISTreg[t,r] = p.REDISTbase[t]      # REDISTbase[1] = 0
+                #     v.REDIST[t] = p.REDISTbase[t]
+                #
+                #     println("test")
+                #     println(" p.REDISTbase[2] TOP ", p.REDISTbase[2])
+                #     println(" v.YNET[1,1] TOP ", v.YNET[1,1])
+                #     println("v.REDIST[1] ", v.REDIST[1])
+
+
+
+                println(" v.YNET[1,1] ", v.YNET[1,1])
+                println(" p.REDISTbase[2] ", p.REDISTbase[2])
+
+                # v.REDISTreg[t,1] = - p.REDISTbase[t] * (v.YNET[t,1]/(v.YNET[t,1] + v.YNET[t,2] + v.YNET[t,3] + v.YNET[t,11]))
+                # v.REDISTreg[t,2] = - p.REDISTbase[t] * (v.YNET[t,2]/(v.YNET[t,1] + v.YNET[t,2] + v.YNET[t,3] + v.YNET[t,11]))
+                # v.REDISTreg[t,3] = - p.REDISTbase[t] * (v.YNET[t,3]/(v.YNET[t,1] + v.YNET[t,2] + v.YNET[t,3] + v.YNET[t,11]))
+                # v.REDISTreg[t,11] = - p.REDISTbase[t] * (v.YNET[t,11]/(v.YNET[t,1] + v.YNET[t,2] + v.YNET[t,3] + v.YNET[t,11]))
+                #
+                # println("v.REDISTreg[2,11] ", v.REDISTreg[2,11])
+                #
+                # v.REDIST[t] = p.REDISTbase[t]
+                #
+                # #Recipients (China, India, Africa, OthAsia, Russia, Eurasia, MidEast, LatAm)
+                # v.REDISTreg[t,6] = v.REDIST[t] * (p.l[t,6]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                # v.REDISTreg[t,7] = v.REDIST[t] * (p.l[t,7]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                # v.REDISTreg[t,9] = v.REDIST[t] * (p.l[t,9]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                # v.REDISTreg[t,12] = v.REDIST[t] * (p.l[t,12]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                # v.REDISTreg[t,4] = v.REDIST[t] * (p.l[t,4]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                # v.REDISTreg[t,5] = v.REDIST[t] * (p.l[t,5]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                # v.REDISTreg[t,8] = v.REDIST[t] * (p.l[t,8]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                # v.REDISTreg[t,10] = v.REDIST[t] * (p.l[t,10]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                #
+                # println("v.REDISTreg[t,6] ", v.REDISTreg[2,6])
+
+
+                println(" v.YNET[1,1] ", v.YNET[1,1])
+                println(" p.REDISTbase[2] ", p.REDISTbase[2])
+
+                v.REDISTreg[t,1] = - p.REDISTbase[t] * (v.YNET[t,1]/(v.YNET[t,1] + v.YNET[t,2] + v.YNET[t,3] + v.YNET[t,11]))   # note REDISTbase[1] is 0 by default
+                v.REDISTreg[t,2] = - p.REDISTbase[t] * (v.YNET[t,2]/(v.YNET[t,1] + v.YNET[t,2] + v.YNET[t,3] + v.YNET[t,11]))
+                v.REDISTreg[t,3] = - p.REDISTbase[t] * (v.YNET[t,3]/(v.YNET[t,1] + v.YNET[t,2] + v.YNET[t,3] + v.YNET[t,11]))
+                v.REDISTreg[t,11] = - p.REDISTbase[t] * (v.YNET[t,11]/(v.YNET[t,1] + v.YNET[t,2] + v.YNET[t,3] + v.YNET[t,11]))
+
+                println("v.REDISTreg[2,11] ", v.REDISTreg[2,11])
+
+                v.REDIST[t] = p.REDISTbase[t]       # note REDISTbase[1] is 0 by default, so REDIST[1] is 0 by default
+
+                #Recipients (China, India, Africa, OthAsia, Russia, Eurasia, MidEast, LatAm)
+                v.REDISTreg[t,6] = v.REDIST[t] * (p.l[t,6]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,7] = v.REDIST[t] * (p.l[t,7]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,9] = v.REDIST[t] * (p.l[t,9]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,12] = v.REDIST[t] * (p.l[t,12]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,4] = v.REDIST[t] * (p.l[t,4]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,5] = v.REDIST[t] * (p.l[t,5]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,8] = v.REDIST[t] * (p.l[t,8]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,10] = v.REDIST[t] * (p.l[t,10]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+
+
+                println("v.REDISTreg[t,6] ", v.REDISTreg[2,6])
+
+
+
+
+
+            elseif t.t == 2
+                    println(" v.YNET[1,1] ", v.YNET[1,1])
+                    println(" p.REDISTbase[2] ", p.REDISTbase[2])
+
+                    v.REDISTreg[t,1] = - p.REDISTbase[t] * (v.YNET[t-1,1]/(v.YNET[t-1,1] + v.YNET[t-1,2] + v.YNET[t-1,3] + v.YNET[t-1,11]))
+                    v.REDISTreg[t,2] = - p.REDISTbase[t] * (v.YNET[t-1,2]/(v.YNET[t-1,1] + v.YNET[t-1,2] + v.YNET[t-1,3] + v.YNET[t-1,11]))
+                    v.REDISTreg[t,3] = - p.REDISTbase[t] * (v.YNET[t-1,3]/(v.YNET[t-1,1] + v.YNET[t-1,2] + v.YNET[t-1,3] + v.YNET[t-1,11]))
+                    v.REDISTreg[t,11] = - p.REDISTbase[t] * (v.YNET[t-1,11]/(v.YNET[t-1,1] + v.YNET[t-1,2] + v.YNET[t-1,3] + v.YNET[t-1,11]))
+
+                    println("v.REDISTreg[2,11] ", v.REDISTreg[2,11])
+
+                    v.REDIST[t] = p.REDISTbase[t]
+
+                    #Recipients (China, India, Africa, OthAsia, Russia, Eurasia, MidEast, LatAm)
+                    v.REDISTreg[t,6] = v.REDIST[t] * (p.l[t,6]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                    v.REDISTreg[t,7] = v.REDIST[t] * (p.l[t,7]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                    v.REDISTreg[t,9] = v.REDIST[t] * (p.l[t,9]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                    v.REDISTreg[t,12] = v.REDIST[t] * (p.l[t,12]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                    v.REDISTreg[t,4] = v.REDIST[t] * (p.l[t,4]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                    v.REDISTreg[t,5] = v.REDIST[t] * (p.l[t,5]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                    v.REDISTreg[t,8] = v.REDIST[t] * (p.l[t,8]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                    v.REDISTreg[t,10] = v.REDIST[t] * (p.l[t,10]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+
+                    println("v.REDISTreg[t,6] ", v.REDISTreg[2,6])
+
+            else
+                v.REDISTreg[t,1] = - p.REDISTbase[t] * (v.YNET[2,1]/(v.YNET[2,1] + v.YNET[2,2] + v.YNET[2,3] + v.YNET[2,11])) * (v.YNET[t-1,1]/v.YNET[2,1])
+                v.REDISTreg[t,2] = - p.REDISTbase[t] * (v.YNET[2,2]/(v.YNET[2,1] + v.YNET[2,2] + v.YNET[2,3] + v.YNET[2,11])) * (v.YNET[t-1,2]/v.YNET[2,2])
+                v.REDISTreg[t,3] = - p.REDISTbase[t] * (v.YNET[2,3]/(v.YNET[2,1] + v.YNET[2,2] + v.YNET[2,3] + v.YNET[2,11])) * (v.YNET[t-1,3]/v.YNET[2,3])
+                v.REDISTreg[t,11] = - p.REDISTbase[t] * (v.YNET[2,11]/(v.YNET[2,1] + v.YNET[2,2] + v.YNET[2,3] + v.YNET[2,11])) * (v.YNET[t-1,11]/v.YNET[2,11])
+
+                println("v.REDISTreg[3,11] ", v.REDISTreg[3,11])
+
+                v.REDIST[t] = p.REDISTbase[t] * (v.YNET[t-1,1] + v.YNET[t-1,2] + v.YNET[t-1,3] + v.YNET[t-1,11]) / (v.YNET[2,1] + v.YNET[2,2] + v.YNET[2,3] + v.YNET[2,11])
+                # v.REDIST[t] = v.REDISTreg[t,1] + v.REDISTreg[t,2] + v.REDISTreg[t,3] + v.REDISTreg[t,11]
+
+                println("v.REDIST[3] ", v.REDIST[3])
+
+                #Recipients (China, India, Africa, OthAsia, Russia, Eurasia, MidEast, LatAm)
+                v.REDISTreg[t,6] = v.REDIST[t] * (p.l[t,6]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,7] = v.REDIST[t] * (p.l[t,7]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,9] = v.REDIST[t] * (p.l[t,9]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,12] = v.REDIST[t] * (p.l[t,12]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,4] = v.REDIST[t] * (p.l[t,4]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,5] = v.REDIST[t] * (p.l[t,5]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,8] = v.REDIST[t] * (p.l[t,8]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                v.REDISTreg[t,10] = v.REDIST[t] * (p.l[t,10]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+
+                println("v.REDISTreg[3,6] ", v.REDISTreg[3,6])
+            end
+
+                # YNET after Redistribution (pr = post redistribution)
+                v.YNETpr[t,1] = v.YNET[t,1] + v.REDISTreg[t,1]
+                v.YNETpr[t,2] = v.YNET[t,2] + v.REDISTreg[t,2]
+                v.YNETpr[t,3] = v.YNET[t,3] + v.REDISTreg[t,3]
+                v.YNETpr[t,11] = v.YNET[t,11] + v.REDISTreg[t,11]
+
+                v.YNETpr[t,6] = v.YNET[t,6] + v.REDISTreg[t,6]
+                v.YNETpr[t,7] = v.YNET[t,7] + v.REDISTreg[t,7]
+                v.YNETpr[t,9] = v.YNET[t,9] + v.REDISTreg[t,9]
+                v.YNETpr[t,12] = v.YNET[t,12] + v.REDISTreg[t,12]
+
+                v.YNETpr[t,4] = v.YNET[t,4] + v.REDISTreg[t,4]
+                v.YNETpr[t,5] = v.YNET[t,5] + v.REDISTreg[t,5]
+                v.YNETpr[t,8] = v.YNET[t,8] + v.REDISTreg[t,8]
+                v.YNETpr[t,10] = v.YNET[t,10] + v.REDISTreg[t,10]
+
+                v.REDISTregperYNET[t,r] = v.REDISTreg[t,r] / v.YNET[t,r]
+                v.REDISTregperYNETpr[t,r] = v.REDISTreg[t,r] / v.YNETpr[t,r]
+
+                println(" p.REDISTbase[2] ", p.REDISTbase[2])
+                println(" v.YNET[1,1] ", v.YNET[1,1])
+
+            # if is_first(t)
+            #     v.REDISTregperYNETpre[t,r] = v.REDISTreg[t,r] / v.YNET[t,r]
+            #     v.REDISTregperYNETprepr[t,r] = v.REDISTreg[t,r] / v.YNETpr[t,r]
+            # else
+            #     v.REDISTregperYNETpre[t,r] = v.REDISTreg[t,r] / v.YNET[t-1,r]
+            #     v.REDISTregperYNETprepr[t,r] = v.REDISTreg[t,r] / v.YNETpr[t-1,r]
+            # end
         else
             println("Redistribution not correctly specified")
         end
