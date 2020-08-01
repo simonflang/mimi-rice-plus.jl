@@ -1,7 +1,7 @@
 using Mimi
 
 global damagefunction = "Original"         # "Burke" (default), "Original"
-global redistribution = "H4-L8-GDPpre-cond"        # "US-Afr", "H4-L4", "H4-L8", "H4-Afr", "H4-L8-GDP", "H4-L8-GDPpre"
+global redistribution = "H4-L8-GDPpre-cond"        # "US-Afr", "H4-L4", "H4-L8", "H4-Afr", "H4-L8-GDP", "H4-L8-GDPpre", "H4-L8-GDPpre-cond"
 
 @defcomp neteconomy begin
     regions = Index()
@@ -56,7 +56,7 @@ global redistribution = "H4-L8-GDPpre-cond"        # "US-Afr", "H4-L4", "H4-L8",
                 REDISTbase = Parameter(index=[time]) # Redistribution in the base year (trillions 2005 USD per year) - for some redistribution schemes, the actual redistribution quantity grows relative to the base quantity
                 REDIST = Variable(index=[time]) # Actual redistribution (trillions 2005 USD per year)
                 REDIST = Parameter(index=[time]) # Actual redistribution (trillions 2005 USD per year)
-                # REDISTreg = Variable(index=[time, regions]) # Regional Redistribution (trillions 2005 USD per year)
+                REDISTreg = Variable(index=[time, regions]) # Regional Redistribution (trillions 2005 USD per year)
                 REDISTreg = Parameter(index=[time, regions]) # Regional Redistribution (trillions 2005 USD per year)
                 REDISTregperYNET = Variable(index=[time, regions]) # Regional Redistribution per regional YNET (fraction)
                 REDISTregperYNETpr = Variable(index=[time, regions]) # Regional Redistribution per regional YNETpr (fraction)
@@ -248,39 +248,40 @@ for r in d.regions
                 v.REDISTregperYNETpr[t,r] = v.REDISTreg[t,r] / v.YNETpr[t,r]
 
 
-            elseif redistribution == "H4-L8-GDPpre-cond"     # calculation based on the previous (pre) period
-                #Donors (US, EU, Japan, OHI); note that in the last term t=3 (2025) indicates that "developed countries intend to continue their existing collective mobilization goal [of USD 100 billion/year] through 2025" (UNFCCC, 2020)
+        elseif redistribution == "H4-L8-GDPpre-cond"     # calculation based on the previous (pre) period
+            #Donors (US, EU, Japan, OHI); note that in the last term t=3 (2025) indicates that "developed countries intend to continue their existing collective mobilization goal [of USD 100 billion/year] through 2025" (UNFCCC, 2020)
 
-                    # YNET after Redistribution (pr = post redistribution)
-                    v.YNETpr[t,1] = v.YNET[t,1] + p.REDISTreg[t,1]
-                    v.YNETpr[t,2] = v.YNET[t,2] + p.REDISTreg[t,2]
-                    v.YNETpr[t,3] = v.YNET[t,3] + p.REDISTreg[t,3]
-                    v.YNETpr[t,11] = v.YNET[t,11] + p.REDISTreg[t,11]
+                # YNET after Redistribution (pr = post redistribution)
+                v.YNETpr[t,1] = v.YNET[t,1] + p.REDISTreg[t,1]
+                v.YNETpr[t,2] = v.YNET[t,2] + p.REDISTreg[t,2]
+                v.YNETpr[t,3] = v.YNET[t,3] + p.REDISTreg[t,3]
+                v.YNETpr[t,11] = v.YNET[t,11] + p.REDISTreg[t,11]
 
-                    v.YNETpr[t,6] = v.YNET[t,6] + p.REDISTreg[t,6] #CHNAGE that
-                    v.YNETpr[t,7] = v.YNET[t,7] + p.REDISTreg[t,7]
-                    v.YNETpr[t,9] = v.YNET[t,9] + p.REDISTreg[t,9]
-                    v.YNETpr[t,12] = v.YNET[t,12] + p.REDISTreg[t,12]
+                # note that all REDISTreg is used for ABATECOSTforeign and NOT to increase YNETpr
+                v.YNETpr[t,6] = v.YNET[t,6]
+                v.YNETpr[t,7] = v.YNET[t,7]
+                v.YNETpr[t,9] = v.YNET[t,9]
+                v.YNETpr[t,12] = v.YNET[t,12]
 
-                    v.YNETpr[t,4] = v.YNET[t,4] + p.REDISTreg[t,4]
-                    v.YNETpr[t,5] = v.YNET[t,5] + p.REDISTreg[t,5]
-                    v.YNETpr[t,8] = v.YNET[t,8] + p.REDISTreg[t,8]
-                    v.YNETpr[t,10] = v.YNET[t,10] + p.REDISTreg[t,10]
+                v.YNETpr[t,4] = v.YNET[t,4]
+                v.YNETpr[t,5] = v.YNET[t,5]
+                v.YNETpr[t,8] = v.YNET[t,8]
+                v.YNETpr[t,10] = v.YNET[t,10]
 
-                    v.REDIST[t] = p.REDIST[t] # just to be able to save REDIST from neteconomcy
+                v.REDIST[t] = p.REDIST[t] # just to be able to save REDIST from neteconomcy
 
-                    v.REDISTregperYNET[t,r] = p.REDISTreg[t,r] / v.YNET[t,r]
-                    v.REDISTregperYNETpr[t,r] = p.REDISTreg[t,r] / v.YNETpr[t,r]
+                v.REDISTregperYNET[t,r] = p.REDISTreg[t,r] / v.YNET[t,r]
+                v.REDISTregperYNETpr[t,r] = p.REDISTreg[t,r] / v.YNETpr[t,r]
 
-                    if t.t == 1
-                        v.REDISTregperYNETpre[t,r] = p.REDISTreg[t,r] / v.YNET[t,r]     # note that REDISTreg is 0 in period 1 by default
-                        v.REDISTregperYNETprepr[t,r] = p.REDISTreg[t,r] / v.YNETpr[t,r]
-                    else
-                        v.REDISTregperYNETpre[t,r] = p.REDISTreg[t,r] / v.YNET[t-1,r]
-                        v.REDISTregperYNETprepr[t,r] = p.REDISTreg[t,r] / v.YNETpr[t-1,r]
-                    end
+                if t.t == 1
+                    v.REDISTregperYNETpre[t,r] = p.REDISTreg[t,r] / v.YNET[t,r]     # note that REDISTreg is 0 in period 1 by default
+                    v.REDISTregperYNETprepr[t,r] = p.REDISTreg[t,r] / v.YNETpr[t,r]
+                else
+                    v.REDISTregperYNETpre[t,r] = p.REDISTreg[t,r] / v.YNET[t-1,r]
+                    v.REDISTregperYNETprepr[t,r] = p.REDISTreg[t,r] / v.YNETpr[t-1,r]
+                end
 
-        elseif redistribution == "H4-L8-GDPpre-works"     # calculation based on the previous (pre) period
+        elseif redistribution == "H4-L8-GDPpre"     # calculation based on the previous (pre) period
             #Donors (US, EU, Japan, OHI); note that in the last term t=3 (2025) indicates that "developed countries intend to continue their existing collective mobilization goal [of USD 100 billion/year] through 2025" (UNFCCC, 2020)
             if t.t == 1
 

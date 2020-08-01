@@ -5,16 +5,24 @@
 # Do you want to save the results as CSV and plot the results? ("true" or "false")
 saveresults = true
 plotresults = true
+foreignabatement = "H4-L8-GDPpre-cond-diffCPRICE"               # "none", "H4-L8-GDPpre-cond-diffCPRICE", "H4-L8-GDPpre-cond-uniCPRICE"
+
 
 if saveresults
 
     # Name of folder to store your results in (a folder will be created with this name).
-    results_folder = string("Opt", optimization, "_region_original_rd-0.1-4H-8L-GDP_FAtest20-CondRedisttoEIND-REDISTreg-t")
+    results_folder = string("Opt", optimization, "_region_original_rd-0.1-4H-8L-GDP-FA_TEST4-diff")
     # dir_output = joinpath("C:/Users/simon/Google Drive/Uni/LSE Master/02_Dissertation/10_Modelling/damage-regressions/data/mimi-rice-output/rc_project/temporary/", results_folder)
 
     # set output directory and make the results_folder
     dir_output = joinpath(dirname(@__FILE__), "../results", results_folder,"")
     mkdir(dir_output)
+
+    if foreignabatement == "H4-L8-GDPpre-cond-diffCPRICE"
+        writedlm(string(dir_output, "REDISTpotential.csv"), m[:emissions, :REDISTpotential], ",")
+    elseif foreignabatement == "H4-L8-GDPpre-cond-uniCPRICE"
+
+    end
 
 
     # Climate Dynamics
@@ -66,19 +74,24 @@ if saveresults
     writedlm(string(dir_output, "CCA.csv"), m[:emissions, :CCA], ",") # Cumulative industrial emissions
     writedlm(string(dir_output, "cost1.csv"), m[:emissions, :cost1], ",") # Adjusted cost for backstop
     writedlm(string(dir_output, "CPRICE.csv"), m[:emissions, :CPRICE], ",")
+    writedlm(string(dir_output, "CPRICEtotal.csv"), m[:emissions, :CPRICEtotal], ",")
     writedlm(string(dir_output, "E.csv"), m[:emissions, :E], ",")
     writedlm(string(dir_output, "EIND.csv"), m[:emissions, :EIND], ",") # Industrial emissions (GtC per year)
     writedlm(string(dir_output, "EINDforeign.csv"), m[:emissions, :EINDforeign], ",") # Industrial emissions (GtC per year)
     writedlm(string(dir_output, "EINDdomestic.csv"), m[:emissions, :EINDdomestic], ",") # Industrial emissions (GtC per year)
     writedlm(string(dir_output, "etree.csv"), m[:emissions, :etree], ",")
     writedlm(string(dir_output, "MCABATE.csv"), m[:emissions, :MCABATE], ",")
+    writedlm(string(dir_output, "MCABATEtotal.csv"), m[:emissions, :MCABATEtotal], ",")
     writedlm(string(dir_output, "MIU.csv"), m[:emissions, :MIU], ",") # Emissions Control Rate GHGs
     writedlm(string(dir_output, "MIUforeign.csv"), m[:emissions, :MIUforeign], ",") # Emissions Control Rate GHGs
     writedlm(string(dir_output, "MIUtotal.csv"), m[:emissions, :MIUtotal], ",") # Emissions Control Rate GHGs
-    writedlm(string(dir_output, "MIUtotalactual.csv"), m[:emissions, :MIUtotalactual], ",") # Emissions Control Rate GHGs
+    writedlm(string(dir_output, "MIUtotalcalc.csv"), m[:emissions, :MIUtotalcalc], ",") # Emissions Control Rate GHGs
     writedlm(string(dir_output, "ABATECOSTtotal.csv"), m[:emissions, :ABATECOSTtotal], ",")
     writedlm(string(dir_output, "ABATECOSTforeign.csv"), m[:emissions, :ABATECOSTforeign], ",")
+    writedlm(string(dir_output, "ABATECOSTforeignpotential.csv"), m[:emissions, :ABATECOSTforeignpotential], ",")
+    writedlm(string(dir_output, "ABATECOSTpotential.csv"), m[:emissions, :ABATECOSTpotential], ",")
     writedlm(string(dir_output, "pbacktime.csv"), m[:emissions, :pbacktime], ",")
+    writedlm(string(dir_output, "REDISTregpotential.csv"), m[:emissions, :REDISTregpotential], ",")
 
     # Gross Economy
     writedlm(string(dir_output, "YGROSS.csv"), m[:grosseconomy, :YGROSS], ",")
@@ -100,6 +113,7 @@ if saveresults
     writedlm(string(dir_output, "REDISTbase.csv"), m[:neteconomy, :REDISTbase], ",")
     writedlm(string(dir_output, "REDIST.csv"), m[:neteconomy, :REDIST], ",")
     writedlm(string(dir_output, "REDISTreg.csv"), m[:neteconomy, :REDISTreg], ",")
+    writedlm(string(dir_output, "REDISTregpotential.csv"), m[:emissions, :REDISTregpotential], ",")
     writedlm(string(dir_output, "REDISTregperYNET.csv"), m[:neteconomy, :REDISTregperYNET], ",")
     writedlm(string(dir_output, "REDISTregperYNETpr.csv"), m[:neteconomy, :REDISTregperYNETpr], ",")
     writedlm(string(dir_output, "REDISTregperYNETpre.csv"), m[:neteconomy, :REDISTregperYNETpre], ",")
@@ -294,6 +308,13 @@ if plotresults
       """
     end
 
+
+    if foreignabatement == "H4-L8-GDPpre-cond-diffCPRICE"
+            global_plot("REDISTpotential")
+    elseif foreignabatement == "H4-L8-GDPpre-cond-uniCPRICE"
+
+    end
+
     country_plot("DAMAGESCTRY")
 
     ## GLOBAL PLOTS
@@ -309,6 +330,7 @@ if plotresults
 
     # Region redistribution
     region_plot("REDISTreg")
+    region_plot("REDISTregpotential")
     region_plot("REDISTregperYNET")
     region_plot("REDISTregperYNETpr")
     region_plot("REDISTregperYNETpre")
@@ -316,10 +338,12 @@ if plotresults
 
     # Foreign abatement
     region_plot("MIUtotal")
-    region_plot("MIUtotalactual")
+    region_plot("MIUtotalcalc")
     region_plot("MIUforeign")
     region_plot("ABATECOSTtotal")
     region_plot("ABATECOSTforeign")
+    region_plot("ABATECOSTforeignpotential")
+    region_plot("ABATECOSTpotential")
     region_plot("EINDforeign")
     region_plot("EINDdomestic")
 
@@ -351,8 +375,10 @@ if plotresults
     region_plot("ABATECOST")
     region_plot("cost1")
     region_plot("CPRICE")
+    region_plot("CPRICEtotal")
     region_plot("EIND")
     region_plot("MCABATE")
+    region_plot("MCABATEtotal")
     region_plot("MIU")
     region_plot("pbacktime")
 

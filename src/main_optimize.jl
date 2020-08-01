@@ -27,11 +27,15 @@ optimization = "Yes"      # "Yes" or "No"
 # 4) parameters
 # 5) neteconomy
 
+# Set the foreign abatement scheme in:
+# 6) emissions
+# 7) save_and_plot
+
 # Set the pure rate of time preference & elasticity of marginal utility of consumption in:
-# 6) parameters
+# 8) parameters
 
 # Set the results directory and whether the results should be saved and plotted in:
-# 7) save_and_plot
+# 9) save_and_plot
 
 #####################################################################################
 # Non-optimization Run
