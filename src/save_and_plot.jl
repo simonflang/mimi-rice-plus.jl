@@ -11,7 +11,7 @@ foreignabatement = "H4-L8-GDPpre-cond-diffCPRICE"               # "none", "H4-L8
 if saveresults
 
     # Name of folder to store your results in (a folder will be created with this name).
-    results_folder = string("Opt", optimization, "_region_original_rd-0.1-4H-8L-GDP-FA_TEST4-diff")
+    results_folder = string("Opt", optimization, "_region_original_uni_rd-0.1-4H-8L-GDP-FA_T2")
     # dir_output = joinpath("C:/Users/simon/Google Drive/Uni/LSE Master/02_Dissertation/10_Modelling/damage-regressions/data/mimi-rice-output/rc_project/temporary/", results_folder)
 
     # set output directory and make the results_folder

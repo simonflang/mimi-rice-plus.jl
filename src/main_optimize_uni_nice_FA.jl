@@ -92,8 +92,8 @@ tolerance = 1e-12               # 1e-12 in RICEupdate, 5e-12 in mimi-NICE
 if optimization == "Yes"
 
     # Create a NICE objective function specific to the user parameter settings.
-    nice_objective, m, rice_params  = construct_nice_objective()
-    println("nice_objective_main: ", nice_objective)
+    nice_objective_FA, m, rice_params  = construct_nice_objective_FA()
+    println("nice_objective_FA_main: ", nice_objective_FA)
     # println("x: ", m[:nice_welfare, :UTILITYNOnegishiNOrescale])
 
 
@@ -102,7 +102,7 @@ if optimization == "Yes"
     println("backstop_opt_values_MAIN: ", backstop_opt_values) # OK
 
     # Optimize NICE and save the results as a custom type `NICE_outputs`.
-    results = optimize_nice(nice_objective, m, opt_algorithm, n_objective, backstop_opt_values, stop_time, tolerance, theta2, rice_params[:pbacktime]) # theta2 = 2.8
+    results = optimize_nice_FA(nice_objective_FA, m, opt_algorithm, n_objective, backstop_opt_values, stop_time, tolerance, theta2, rice_params[:pbacktime]) # theta2 = 2.8
     println("results_MAIN: ", results)
 
     explore(m)
