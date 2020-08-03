@@ -36,6 +36,9 @@ global foreignabatement = "H4-L8-GDPpre-cond-uniCPRICE"        # "none", "H4-L8-
     ABATECOSTpotential = Variable(index=[time, regions])
     ABATECOSTtotal = Variable(index=[time, regions])
     MIUtotal = Variable(index=[time, regions])
+    MIU = Variable(index=[time, regions])
+    MIUcalc = Variable(index=[time, regions])
+    MIUtotal = Parameter(index=[time, regions])
     MIUtotalcalc = Variable(index=[time, regions])
     MIUforeign = Variable(index=[time, regions])
     MIUforeigncalc = Variable(index=[time, regions])
@@ -43,6 +46,15 @@ global foreignabatement = "H4-L8-GDPpre-cond-uniCPRICE"        # "none", "H4-L8-
     EINDdomestic = Variable(index=[time, regions])
     MCABATEtotal = Variable(index=[time, regions]) # Marginal cost of abatement for the whole economy (2005$ per ton CO2)
     CPRICEtotal = Variable(index=[time, regions]) # Hypothetical Carbon price for the whole economy(2005$ per ton of CO2)
+
+    # if foreignabatement == "H4-L8-GDPpre-cond-uniCPRICE"
+    #     MIU = Variable(index=[time, regions])
+    #     MIUcalc = Variable(index=[time, regions])
+    #     MIUtotal = Parameter(index=[time, regions])
+    # else
+    #     MIU = Parameter(index=[time, regions])
+    #     MIUtotal = Variable(index=[time, regions])
+    # end
 
     # NEW: Redistribution
     REDISTbase = Parameter(index=[time]) # Redistribution in the base year (trillions 2005 USD per year) - for some redistribution schemes, the actual redistribution quantity grows relative to the base quantity
@@ -518,60 +530,116 @@ global foreignabatement = "H4-L8-GDPpre-cond-uniCPRICE"        # "none", "H4-L8-
 
                 # v.ABATECOST[t,r] = p.YGROSS[t,r] * p.cost1[t,r] * (p.MIU[t,r]^p.expcost2[r]) * (p.partfract[t,r]^(1 - p.expcost2[r]))
             for r in d.regions
-                v.ABATECOSTtotal[t,r] = p.YGROSS[t,r] * p.cost1[t,r] * (p.MIU[t,r] + v.MIUforeign[t,r])^p.expcost2[r]
+                v.ABATECOSTtotal[t,r] = p.YGROSS[t,r] * p.cost1[t,r] * (p.MIUtotal[t,r])^p.expcost2[r]
+            end
+
+            for r in d.regions
+                v.MIUtotal[t,r] = p.MIUtotal[t,r] # just to be able to save MIUtotal from emissions_component
             end
 
             for r in d.regions
                 v.ABATECOSTpotential[t,r] = v.ABATECOSTtotal[t,r] - v.ABATECOSTforeignpotential[t,r]
             end
 
+            for r in d.regions
+                v.MIUcalc[t,r] = p.MIUtotal[t,r] - v.MIUforeign[t,r]
+            end
 
-                    # NEW: COUNTRY-LEVEL: Define function for ABATECOST  - need to CHANGE that (does not take into account foreign abatement yet)
+            for r in d.regions
+                if v.MIUcalc[t,r] >= 0
+                    v.MIU[t,r] = v.MIUcalc[t,r]
+                else
+                    v.MIU[t,r] = 0
+                end
+            end
+
+
+                # if v.MIUtotalcalc[t,r] <= 1
+                #     v.MIUtotal[t,r] = v.MIUtotalcalc[t,r]
+                # else
+                #     v.MIUtotal[t,r] = 1
+                # end
+
+
+
+                    # NEW: COUNTRY-LEVEL: Define function for ABATECOST  - manually set to zero; need to CHANGE that (does not take into account foreign abatement yet)
                     for c in d.countries
                         if p.inregion[c] == 1
-                            v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,1] * (p.MIU[t,1]^p.expcost2[1]) * (p.partfract[t,1]^(1 - p.expcost2[1]))
+                            v.ABATECOSTctry[t,c] = 0
                         elseif p.inregion[c] == 2
-                            v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,2] * (p.MIU[t,2]^p.expcost2[2]) * (p.partfract[t,2]^(1 - p.expcost2[2]))
+                            v.ABATECOSTctry[t,c] = 0
                         elseif p.inregion[c] == 3
-                            v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,3] * (p.MIU[t,3]^p.expcost2[3]) * (p.partfract[t,3]^(1 - p.expcost2[3]))
+                            v.ABATECOSTctry[t,c] = 0
                         elseif p.inregion[c] == 4
-                            v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,4] * (p.MIU[t,4]^p.expcost2[4]) * (p.partfract[t,4]^(1 - p.expcost2[4]))
+                            v.ABATECOSTctry[t,c] = 0
                         elseif p.inregion[c] == 5
-                            v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,5] * (p.MIU[t,5]^p.expcost2[5]) * (p.partfract[t,5]^(1 - p.expcost2[5]))
+                            v.ABATECOSTctry[t,c] = 0
                         elseif p.inregion[c] == 6
-                            v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,6] * (p.MIU[t,6]^p.expcost2[6]) * (p.partfract[t,6]^(1 - p.expcost2[6]))
+                            v.ABATECOSTctry[t,c] = 0
                         elseif p.inregion[c] == 7
-                            v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,7] * (p.MIU[t,7]^p.expcost2[7]) * (p.partfract[t,7]^(1 - p.expcost2[7]))
+                            v.ABATECOSTctry[t,c] = 0
                         elseif p.inregion[c] == 8
-                            v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,8] * (p.MIU[t,8]^p.expcost2[8]) * (p.partfract[t,8]^(1 - p.expcost2[8]))
+                            v.ABATECOSTctry[t,c] = 0
                         elseif p.inregion[c] == 9
-                            v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,9] * (p.MIU[t,9]^p.expcost2[9]) * (p.partfract[t,9]^(1 - p.expcost2[9]))
+                            v.ABATECOSTctry[t,c] = 0
                         elseif p.inregion[c] == 10
-                            v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,10] * (p.MIU[t,10]^p.expcost2[10]) * (p.partfract[t,10]^(1 - p.expcost2[10]))
+                            v.ABATECOSTctry[t,c] = 0
                         elseif p.inregion[c] == 11
-                            v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,11] * (p.MIU[t,11]^p.expcost2[11]) * (p.partfract[t,11]^(1 - p.expcost2[11]))
+                            v.ABATECOSTctry[t,c] = 0
                         elseif p.inregion[c] == 12
-                            v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,12] * (p.MIU[t,12]^p.expcost2[12]) * (p.partfract[t,12]^(1 - p.expcost2[12]))
+                            v.ABATECOSTctry[t,c] = 0
                         else
                             println("country does not belong to any region")
                         end
                     end
 
 
-            for r in d.regions
-                v.MIUtotalcalc[t,r] = p.MIU[t,r] + v.MIUforeign[t,r]
+                    # for c in d.countries
+                    #     if p.inregion[c] == 1
+                    #         v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,1] * (v.MIU[t,1]^p.expcost2[1]) * (p.partfract[t,1]^(1 - p.expcost2[1]))
+                    #     elseif p.inregion[c] == 2
+                    #         v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,2] * (v.MIU[t,2]^p.expcost2[2]) * (p.partfract[t,2]^(1 - p.expcost2[2]))
+                    #     elseif p.inregion[c] == 3
+                    #         v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,3] * (v.MIU[t,3]^p.expcost2[3]) * (p.partfract[t,3]^(1 - p.expcost2[3]))
+                    #     elseif p.inregion[c] == 4
+                    #         v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,4] * (v.MIU[t,4]^p.expcost2[4]) * (p.partfract[t,4]^(1 - p.expcost2[4]))
+                    #     elseif p.inregion[c] == 5
+                    #         v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,5] * (v.MIU[t,5]^p.expcost2[5]) * (p.partfract[t,5]^(1 - p.expcost2[5]))
+                    #     elseif p.inregion[c] == 6
+                    #         v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,6] * (v.MIU[t,6]^p.expcost2[6]) * (p.partfract[t,6]^(1 - p.expcost2[6]))
+                    #     elseif p.inregion[c] == 7
+                    #         v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,7] * (v.MIU[t,7]^p.expcost2[7]) * (p.partfract[t,7]^(1 - p.expcost2[7]))
+                    #     elseif p.inregion[c] == 8
+                    #         v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,8] * (v.MIU[t,8]^p.expcost2[8]) * (p.partfract[t,8]^(1 - p.expcost2[8]))
+                    #     elseif p.inregion[c] == 9
+                    #         v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,9] * (v.MIU[t,9]^p.expcost2[9]) * (p.partfract[t,9]^(1 - p.expcost2[9]))
+                    #     elseif p.inregion[c] == 10
+                    #         v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,10] * (v.MIU[t,10]^p.expcost2[10]) * (p.partfract[t,10]^(1 - p.expcost2[10]))
+                    #     elseif p.inregion[c] == 11
+                    #         v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,11] * (v.MIU[t,11]^p.expcost2[11]) * (p.partfract[t,11]^(1 - p.expcost2[11]))
+                    #     elseif p.inregion[c] == 12
+                    #         v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,12] * (v.MIU[t,12]^p.expcost2[12]) * (p.partfract[t,12]^(1 - p.expcost2[12]))
+                    #     else
+                    #         println("country does not belong to any region")
+                    #     end
+                    # end
 
-                if v.MIUtotalcalc[t,r] <= 1
-                    v.MIUtotal[t,r] = v.MIUtotalcalc[t,r]
-                else
-                    v.MIUtotal[t,r] = 1
-                end
-            end
+
+
+            # for r in d.regions
+            #     v.MIUtotalcalc[t,r] = p.MIU[t,r] + v.MIUforeign[t,r]
+            #
+            #     if v.MIUtotalcalc[t,r] <= 1
+            #         v.MIUtotal[t,r] = v.MIUtotalcalc[t,r]
+            #     else
+            #         v.MIUtotal[t,r] = 1
+            #     end
+            # end
 
             for r in d.regions
-                v.EIND[t,r] = p.sigma[t,r] * p.YGROSS[t,r] * (1-v.MIUtotal[t,r])
+                v.EIND[t,r] = p.sigma[t,r] * p.YGROSS[t,r] * (1-p.MIUtotal[t,r])
                 v.EINDforeign[t,r] = p.sigma[t,r] * p.YGROSS[t,r] * (1-v.MIUforeign[t,r])
-                v.EINDdomestic[t,r] = p.sigma[t,r] * p.YGROSS[t,r] * (1-p.MIU[t,r])
+                v.EINDdomestic[t,r] = p.sigma[t,r] * p.YGROSS[t,r] * (1-v.MIU[t,r])
             end
 
 
@@ -599,6 +667,7 @@ global foreignabatement = "H4-L8-GDPpre-cond-uniCPRICE"        # "none", "H4-L8-
                 end
             end
 
+            # makes sure that ABATECOSTforeign does not exceed ABABTECOSTtotal
             for r in d.regions
                 if v.ABATECOSTforeignpotential[t,r] <= v.ABATECOSTtotal[t,r]
                     v.ABATECOSTforeign[t,r] = v.ABATECOSTforeignpotential[t,r]
@@ -672,10 +741,10 @@ global foreignabatement = "H4-L8-GDPpre-cond-uniCPRICE"        # "none", "H4-L8-
 
             # NEW
             for r in d.regions
-                if p.MIU[t,r] == 0
-                    v.MCABATE[t,r] = p.pbacktime[t,r] * p.MIU[t,r]^(p.expcost2[r] - 1)
+                if v.MIU[t,r] == 0
+                    v.MCABATE[t,r] = p.pbacktime[t,r] * v.MIU[t,r]^(p.expcost2[r] - 1)
                 else
-                    v.MCABATE[t,r] = p.pbacktime[t,r] * v.MIUtotal[t,r]^(p.expcost2[r] - 1)
+                    v.MCABATE[t,r] = p.pbacktime[t,r] * p.MIUtotal[t,r]^(p.expcost2[r] - 1)
                 end
             end
 
@@ -688,22 +757,22 @@ global foreignabatement = "H4-L8-GDPpre-cond-uniCPRICE"        # "none", "H4-L8-
 
             # NEW
             for r in d.regions
-                if p.MIU[t,r] == 0
-                    v.CPRICE[t,r] = p.pbacktime[t,r] * 1000 * p.MIU[t,r]^(p.expcost2[r] - 1)
+                if v.MIU[t,r] == 0
+                    v.CPRICE[t,r] = p.pbacktime[t,r] * 1000 * v.MIU[t,r]^(p.expcost2[r] - 1)
                 else
-                    v.CPRICE[t,r] = p.pbacktime[t,r] * 1000 * v.MIUtotal[t,r]^(p.expcost2[r] - 1)
+                    v.CPRICE[t,r] = p.pbacktime[t,r] * 1000 * p.MIUtotal[t,r]^(p.expcost2[r] - 1)
                 end
             end
 
 
             # NEW MCABATE for the whole economy (considering foreign and domestic abatement)
             for r in d.regions
-                v.MCABATEtotal[t,r] = p.pbacktime[t,r] * v.MIUtotal[t,r]^(p.expcost2[r] - 1)
+                v.MCABATEtotal[t,r] = p.pbacktime[t,r] * p.MIUtotal[t,r]^(p.expcost2[r] - 1)
             end
 
             # NEW CPRICE for the whole economy (considering foreign and domestic abatement)
             for r in d.regions
-                v.CPRICEtotal[t,r] = p.pbacktime[t,r] * 1000 * v.MIUtotal[t,r]^(p.expcost2[r] - 1)
+                v.CPRICEtotal[t,r] = p.pbacktime[t,r] * 1000 * p.MIUtotal[t,r]^(p.expcost2[r] - 1)
             end
 
 

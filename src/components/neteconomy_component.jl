@@ -270,6 +270,10 @@ for r in d.regions
 
                 v.REDIST[t] = p.REDIST[t] # just to be able to save REDIST from neteconomcy
 
+                for r in d.regions
+                    v.REDISTreg[t,r] = p.REDISTreg[t,r] # just to be able to save REDISTreg from neteconomcy
+                end
+
                 v.REDISTregperYNET[t,r] = p.REDISTreg[t,r] / v.YNET[t,r]
                 v.REDISTregperYNETpr[t,r] = p.REDISTreg[t,r] / v.YNETpr[t,r]
 

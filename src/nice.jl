@@ -2,8 +2,9 @@
 using DataFrames
 using NLopt
 
-include("components/neteconomy_component.jl")  # don't think I need this but inccluded it because it was inlcuded in NICE
-include("components/welfare_component.jl")     # don't think I need this but inccluded it because it was inlcuded in NICE
+include("components/neteconomy_component.jl")  # don't think I need this but included it because it was inlcuded in NICE
+include("components/welfare_component.jl")     # don't think I need this but included it because it was inlcuded in NICE
+include("components/emissions_component.jl")     # don't think I need this but included it as it may be needed for MIUforeign
 include("rice2010.jl")
 include("helpers.jl")
 include("parameters.jl")
@@ -87,7 +88,7 @@ function construct_nice_objective_FA()
         # Calculate emissions abatement level as a function of the carbon tax.
         abatement_level, tax = mu_from_tax_FA(tax, rice_backstop, 2.8) # abatement level as a function of the tax = mu_from_tax_FA
 
-        set_param!(m, :emissions, :MIU, abatement_level)
+        set_param!(m, :emissions, :MIUtotal, abatement_level)
         run(m)
         # explore(m) # I added this to see what's been happening
         return m[:welfare, :UTILITYNOnegishiNOrescale]      # Negishi: "UTILITY", "UTILITYctryagg"; Non-Negishi: "UTILITYNOnegishiNOrescale", "UTILITYctryaggNOnegishiNOrescale"

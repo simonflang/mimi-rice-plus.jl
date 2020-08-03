@@ -186,7 +186,7 @@ function optimize_nice_FA(objetive_function, m::Mimi.Model, algorithm::Symbol, n
 
     mitigation, tax = mu_from_tax_FA(minx, backstop_price, theta2)
 
-    set_param!(m, :emissions, :MIU, mitigation)
+    set_param!(m, :emissions, :MIUtotal, mitigation)
     run(m)
 
 	# explore(m) # I added this to see what has happened

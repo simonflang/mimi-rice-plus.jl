@@ -179,6 +179,9 @@ function getrice2010parameters(filename)
     # MIU (base case RICE2010)
     p[:MIU] = getparam_timeseries(f, "B103:BI103", regions, T)
 
+        # NEW: Foreign Abatement uniform CPRICE
+        p[:MIUtotal] = getparam_timeseries(f, "B103:BI103", regions, T) # just to send the baseline values
+
     # SEA LEVEL RISE PARAMETERS
     p[:slrmultiplier] = getparam_single(f, "B49:B49", regions) # Multiplier for SLR
     p[:slrelasticity] = getparam_single(f, "C49:C49", regions) # SLR elasticity of substitution

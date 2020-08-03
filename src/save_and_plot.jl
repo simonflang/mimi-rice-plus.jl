@@ -11,7 +11,7 @@ foreignabatement = "H4-L8-GDPpre-cond-diffCPRICE"               # "none", "H4-L8
 if saveresults
 
     # Name of folder to store your results in (a folder will be created with this name).
-    results_folder = string("Opt", optimization, "_region_original_uni_rd-0.1-4H-8L-GDP-FA_T2")
+    results_folder = string("Opt", optimization, "_region_original_uni_rd-0.1-4H-8L-GDP-FA_T6_MIUtotal")
     # dir_output = joinpath("C:/Users/simon/Google Drive/Uni/LSE Master/02_Dissertation/10_Modelling/damage-regressions/data/mimi-rice-output/rc_project/temporary/", results_folder)
 
     # set output directory and make the results_folder
@@ -83,6 +83,7 @@ if saveresults
     writedlm(string(dir_output, "MCABATE.csv"), m[:emissions, :MCABATE], ",")
     writedlm(string(dir_output, "MCABATEtotal.csv"), m[:emissions, :MCABATEtotal], ",")
     writedlm(string(dir_output, "MIU.csv"), m[:emissions, :MIU], ",") # Emissions Control Rate GHGs
+    writedlm(string(dir_output, "MIUcalc.csv"), m[:emissions, :MIUcalc], ",") # Emissions Control Rate GHGs
     writedlm(string(dir_output, "MIUforeign.csv"), m[:emissions, :MIUforeign], ",") # Emissions Control Rate GHGs
     writedlm(string(dir_output, "MIUtotal.csv"), m[:emissions, :MIUtotal], ",") # Emissions Control Rate GHGs
     writedlm(string(dir_output, "MIUtotalcalc.csv"), m[:emissions, :MIUtotalcalc], ",") # Emissions Control Rate GHGs
@@ -338,6 +339,7 @@ if plotresults
 
     # Foreign abatement
     region_plot("MIUtotal")
+    region_plot("MIUcalc")
     region_plot("MIUtotalcalc")
     region_plot("MIUforeign")
     region_plot("ABATECOSTtotal")

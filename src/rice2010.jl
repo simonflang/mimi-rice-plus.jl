@@ -71,6 +71,7 @@ function constructrice(p)
         # connect_param!(m, :emissions, :REDIST, :neteconomy, :REDISTreg)
         set_param!(m, :emissions, :l, p[:l])
         set_param!(m, :emissions, :REDISTbase, p[:REDISTbase])
+        set_param!(m, :emissions, :MIUtotal, p[:MIUtotal])
 
         connect_param!(m, :emissions, :YNET, :neteconomy, :YNET)
 
