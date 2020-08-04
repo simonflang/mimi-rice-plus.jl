@@ -180,7 +180,7 @@ function getrice2010parameters(filename)
     p[:MIU] = getparam_timeseries(f, "B103:BI103", regions, T)
 
         # NEW: Foreign Abatement uniform CPRICE
-        p[:MIUtotal] = getparam_timeseries(f, "B103:BI103", regions, T) # just to send the baseline values
+        p[:MIUtotal] = getparam_timeseries(f, "B103:BI103", regions, T) # just to set the baseline values
 
     # SEA LEVEL RISE PARAMETERS
     p[:slrmultiplier] = getparam_single(f, "B49:B49", regions) # Multiplier for SLR

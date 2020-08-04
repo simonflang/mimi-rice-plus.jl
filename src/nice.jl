@@ -100,3 +100,43 @@ function construct_nice_objective_FA()
     println("nice_objective_FA: ", nice_objective_FA)
 end
 # println("nice_objective_FA2: ", nice_objective_FA)
+
+
+
+
+
+#### Create NICE objective function (Uniform CPRICE + Foreign Abatement optimized) ##############################################################################################################
+
+# Create NICE objective function, passing in version of NICE made with "construct_nice()" function.
+function construct_nice_objective_FAopt()
+
+    # Get an implementation of the NICE model
+    m, rice_params = construct_nice()
+    # m = getrice()
+
+    marginalemission = 0    # 1 = additional emission pulse; 0 otherwise
+    set_param!(m,:emissions,:marginalemission,marginalemission)
+
+    marginalconsumption = 0    # 1 = additional consumption pulse; 0 otherwise
+    set_param!(m,:neteconomy,:marginalconsumption,marginalconsumption)
+
+    # Get backstop prices from base version of RICE
+    rice_backstop =  rice_params[:pbacktime]
+
+    function nice_objective_FAopt(tax::Array{Float64,1})
+
+        # Calculate emissions abatement level as a function of the carbon tax.
+        abatement_level, tax = mu_from_tax_FAopt(tax, rice_backstop, 2.8) # abatement level as a function of the tax = mu_from_tax_FAopt
+
+        set_param!(m, :emissions, :MIUtotal, abatement_level)
+        run(m)
+        # explore(m) # I added this to see what's been happening
+        return m[:welfare, :UTILITYNOnegishiNOrescale]      # Negishi: "UTILITY", "UTILITYctryagg"; Non-Negishi: "UTILITYNOnegishiNOrescale", "UTILITYctryaggNOnegishiNOrescale"
+        println("utility: ", m[:welfare, :UTILITYNOnegishiNOrescale])
+    end
+    # println("utility2: ", m[:welfare, :UTILITYNOnegishiNOrescale])
+
+    return nice_objective_FAopt, m, rice_params
+    println("nice_objective_FAopt: ", nice_objective_FAopt)
+end
+# println("nice_objective_FAopt2: ", nice_objective_FAopt)

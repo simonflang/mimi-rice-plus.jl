@@ -195,3 +195,97 @@ function optimize_nice_FA(objetive_function, m::Mimi.Model, algorithm::Symbol, n
     return result
 	# return tax
 end
+
+
+
+
+
+
+###############################################################################
+# Optimization functions - uniform CPRICE (Copied from NICE and modified)
+# #############################################################################
+
+#Function to calculate emissions control rate as a function of the carbon tax.
+function mu_from_tax(tax::Array{Float64,1}, backstop_p::Array{Float64,2}, theta2::Float64)
+    backstop = backstop_p .* 1000.0
+    pbmax = maximum(backstop, dims = 2) # added "dims = "
+    TAX = [0.0; pbmax[2:end]]
+    TAX[2:(length(tax)+1)] = tax
+    mu = min.((max.(((TAX ./ backstop) .^ (1 / (theta2 - 1.0))), 0.0)), 1.0) # added the "." after min and max
+
+    return mu, TAX
+end
+
+
+# function optimize_nice
+function optimize_nice(objetive_function, m::Mimi.Model, algorithm::Symbol, n_objectives::Int64, upperbound::Array{Float64,1}, stop_time::Int64, tolerance::Float64, theta2::Float64, backstop_price::Array{Float64,2})
+    opt = Opt(algorithm, n_objectives)
+
+    lower_bounds!(opt, zeros(n_objectives))
+    upper_bounds!(opt, upperbound)
+
+    max_objective!(opt, (x, grad) -> objetive_function(x))
+
+    maxtime!(opt, stop_time)
+    ftol_rel!(opt, tolerance)
+
+    minf, minx, ret = optimize(opt, (upperbound .* 0.5))
+    println("Convergence result: ", ret)
+
+    mitigation, tax = mu_from_tax(minx, backstop_price, theta2)
+
+    set_param!(m, :emissions, :MIU, mitigation)
+    run(m)
+
+	# explore(m) # I added this to see what has happened
+
+    result = NICE_outputs(tax, m[:climatedynamics, :TATM], mitigation, m[:emissions, :E], m)
+    return result
+	# return tax
+end
+
+
+
+
+###############################################################################
+# Optimization functions - uniform CPRICE (Copied from NICE and modified) + Foreign Abatement OPTIMIZED
+# #############################################################################
+
+#Function to calculate emissions control rate as a function of the carbon tax.
+function mu_from_tax_FAopt(tax::Array{Float64,1}, backstop_p::Array{Float64,2}, theta2::Float64)
+    backstop = backstop_p .* 1000.0
+    pbmax = maximum(backstop, dims = 2) # added "dims = "
+    TAX = [0.0; pbmax[2:end]]
+    TAX[2:(length(tax)+1)] = tax
+    mu = min.((max.((((TAX ./ backstop) .^ (1 / (theta2 - 1.0))) ), 0.0)), 1.0) # added the "." after min and max
+
+    return mu, TAX
+end
+
+
+# function optimize_nice_FAopt
+function optimize_nice_FAopt(objetive_function, m::Mimi.Model, algorithm::Symbol, n_objectives::Int64, upperbound::Array{Float64,1}, stop_time::Int64, tolerance::Float64, theta2::Float64, backstop_price::Array{Float64,2})
+    opt = Opt(algorithm, n_objectives)
+
+    lower_bounds!(opt, zeros(n_objectives))
+    upper_bounds!(opt, upperbound)
+
+    max_objective!(opt, (x, grad) -> objetive_function(x))
+
+    maxtime!(opt, stop_time)
+    ftol_rel!(opt, tolerance)
+
+    minf, minx, ret = optimize(opt, (upperbound .* 0.5))
+    println("Convergence result: ", ret)
+
+    mitigation, tax = mu_from_tax_FAopt(minx, backstop_price, theta2)
+
+    set_param!(m, :emissions, :MIUtotal, mitigation)
+    run(m)
+
+	# explore(m) # I added this to see what has happened
+
+    result = NICE_outputs(tax, m[:climatedynamics, :TATM], mitigation, m[:emissions, :E], m)
+    return result
+	# return tax
+end
