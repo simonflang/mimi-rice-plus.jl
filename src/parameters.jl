@@ -182,6 +182,9 @@ function getrice2010parameters(filename)
         # NEW: Foreign Abatement uniform CPRICE
         p[:MIUtotal] = getparam_timeseries(f, "B103:BI103", regions, T) # just to set the baseline values
 
+        # NEW: Foreign Abatement uniform CPRICE - redistribution shares optimized (to make redistribution shares endogenous)
+        p[:REDISTRECshare] = getparam_timeseries(f, "B170:BI170", regions, T) # just to set the baseline values for the redistribution share (receiving)
+
     # SEA LEVEL RISE PARAMETERS
     p[:slrmultiplier] = getparam_single(f, "B49:B49", regions) # Multiplier for SLR
     p[:slrelasticity] = getparam_single(f, "C49:C49", regions) # SLR elasticity of substitution

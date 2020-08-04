@@ -71,9 +71,15 @@ function constructrice(p)
         # connect_param!(m, :emissions, :REDIST, :neteconomy, :REDISTreg)
         set_param!(m, :emissions, :l, p[:l])
         set_param!(m, :emissions, :REDISTbase, p[:REDISTbase])
-        set_param!(m, :emissions, :MIUtotal, p[:MIUtotal])
 
         connect_param!(m, :emissions, :YNET, :neteconomy, :YNET)
+
+        # NEW: Foreign Abatement uniform CPRICE
+        set_param!(m, :emissions, :MIUtotal, p[:MIUtotal])
+
+        # NEW: Foreign Abatement uniform CPRICE - redistribution shares optimized (to make redistribution shares endogenous)
+        set_param!(m, :emissions, :REDISTRECshare, p[:REDISTRECshare]) # just to set the baseline values for the redistribution share (receiving)
+
 
     # NEW: COUNTRY-LEVEL - YGROSSctry
     connect_param!(m, :emissions, :YGROSSctry, :grosseconomy, :YGROSSctry)

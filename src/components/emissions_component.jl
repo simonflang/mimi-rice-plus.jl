@@ -65,6 +65,10 @@ global foreignabatement = "H4-L8-GDPpre-cond-uniCPRICE-opt"        # "none", "H4
     l = Parameter(index=[time, regions]) # Level of population and labor
     YNET = Parameter(index=[time, regions]) # Output net of damages equation (trillions 2005 USD per year)
 
+    # NEW: Redistribution - endogenous shares
+    REDISTRECshare = Parameter(index=[time, regions]) # Redistribution share (receiving) [0,1]
+    REDISTRECregpotential = Variable(index=[time, regions]) # Potential Regional Redistribution RECEIVING (trillions 2005 USD per year)
+
 
     function run_timestep(p, v, d, t)
 
@@ -795,14 +799,16 @@ global foreignabatement = "H4-L8-GDPpre-cond-uniCPRICE-opt"        # "none", "H4
                     v.REDISTpotential[t] = p.REDISTbase[t]       # note REDISTbase[1] is 0 by default, so REDIST[1] is 0 by default
 
                     #Recipients (China, India, Africa, OthAsia, Russia, Eurasia, MidEast, LatAm)
-                    v.REDISTregpotential[t,6] = v.REDISTpotential[t] * (p.l[t,6]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
-                    v.REDISTregpotential[t,7] = v.REDISTpotential[t] * (p.l[t,7]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
-                    v.REDISTregpotential[t,9] = v.REDISTpotential[t] * (p.l[t,9]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
-                    v.REDISTregpotential[t,12] = v.REDISTpotential[t] * (p.l[t,12]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
-                    v.REDISTregpotential[t,4] = v.REDISTpotential[t] * (p.l[t,4]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
-                    v.REDISTregpotential[t,5] = v.REDISTpotential[t] * (p.l[t,5]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
-                    v.REDISTregpotential[t,8] = v.REDISTpotential[t] * (p.l[t,8]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
-                    v.REDISTregpotential[t,10] = v.REDISTpotential[t] * (p.l[t,10]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                    v.REDISTregpotential[t,6] = 0
+                    v.REDISTregpotential[t,7] = 0
+                    v.REDISTregpotential[t,9] = 0
+                    v.REDISTregpotential[t,12] = 0
+                    v.REDISTregpotential[t,4] = 0
+                    v.REDISTregpotential[t,5] = 0
+                    v.REDISTregpotential[t,8] = 0
+                    v.REDISTregpotential[t,10] = 0
+
+                    v.REDISTRECregpotential[t,r] = v.REDISTpotential[t] * p.REDISTRECshare[t,r]
 
                 elseif t.t == 2
 
@@ -814,14 +820,16 @@ global foreignabatement = "H4-L8-GDPpre-cond-uniCPRICE-opt"        # "none", "H4
                     v.REDISTpotential[t] = p.REDISTbase[t]
 
                     #Recipients (China, India, Africa, OthAsia, Russia, Eurasia, MidEast, LatAm)
-                    v.REDISTregpotential[t,6] = v.REDISTpotential[t] * (p.l[t,6]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
-                    v.REDISTregpotential[t,7] = v.REDISTpotential[t] * (p.l[t,7]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
-                    v.REDISTregpotential[t,9] = v.REDISTpotential[t] * (p.l[t,9]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
-                    v.REDISTregpotential[t,12] = v.REDISTpotential[t] * (p.l[t,12]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
-                    v.REDISTregpotential[t,4] = v.REDISTpotential[t] * (p.l[t,4]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
-                    v.REDISTregpotential[t,5] = v.REDISTpotential[t] * (p.l[t,5]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
-                    v.REDISTregpotential[t,8] = v.REDISTpotential[t] * (p.l[t,8]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
-                    v.REDISTregpotential[t,10] = v.REDISTpotential[t] * (p.l[t,10]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                    v.REDISTregpotential[t,6] = 0
+                    v.REDISTregpotential[t,7] = 0
+                    v.REDISTregpotential[t,9] = 0
+                    v.REDISTregpotential[t,12] = 0
+                    v.REDISTregpotential[t,4] = 0
+                    v.REDISTregpotential[t,5] = 0
+                    v.REDISTregpotential[t,8] = 0
+                    v.REDISTregpotential[t,10] = 0
+
+                    v.REDISTRECregpotential[t,r] = v.REDISTpotential[t] * p.REDISTRECshare[t,r]
 
                 else
                     v.REDISTregpotential[t,1] = - p.REDISTbase[t] * (p.YNET[2,1]/(p.YNET[2,1] + p.YNET[2,2] + p.YNET[2,3] + p.YNET[2,11])) * (p.YNET[t-1,1]/p.YNET[2,1])
@@ -833,15 +841,16 @@ global foreignabatement = "H4-L8-GDPpre-cond-uniCPRICE-opt"        # "none", "H4
                     # v.REDISTpotential[t] = v.REDISTregpotential[t,1] + v.REDISTregpotential[t,2] + v.REDISTregpotential[t,3] + v.REDISTregpotential[t,11]
 
                     #Recipients (China, India, Africa, OthAsia, Russia, Eurasia, MidEast, LatAm)
-                    v.REDISTregpotential[t,6] = v.REDISTpotential[t] * (p.l[t,6]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
-                    v.REDISTregpotential[t,7] = v.REDISTpotential[t] * (p.l[t,7]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
-                    v.REDISTregpotential[t,9] = v.REDISTpotential[t] * (p.l[t,9]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
-                    v.REDISTregpotential[t,12] = v.REDISTpotential[t] * (p.l[t,12]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
-                    v.REDISTregpotential[t,4] = v.REDISTpotential[t] * (p.l[t,4]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
-                    v.REDISTregpotential[t,5] = v.REDISTpotential[t] * (p.l[t,5]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
-                    v.REDISTregpotential[t,8] = v.REDISTpotential[t] * (p.l[t,8]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
-                    v.REDISTregpotential[t,10] = v.REDISTpotential[t] * (p.l[t,10]/(p.l[t,6] + p.l[t,7] + p.l[t,9] + p.l[t,12] + p.l[t,4] + p.l[t,5] + p.l[t,8] + p.l[t,10]))
+                    v.REDISTregpotential[t,6] = 0
+                    v.REDISTregpotential[t,7] = 0
+                    v.REDISTregpotential[t,9] = 0
+                    v.REDISTregpotential[t,12] = 0
+                    v.REDISTregpotential[t,4] = 0
+                    v.REDISTregpotential[t,5] = 0
+                    v.REDISTregpotential[t,8] = 0
+                    v.REDISTregpotential[t,10] = 0
 
+                    v.REDISTRECregpotential[t,r] = v.REDISTpotential[t] * p.REDISTRECshare[t,r]
                 end
             end
 
@@ -851,8 +860,8 @@ global foreignabatement = "H4-L8-GDPpre-cond-uniCPRICE-opt"        # "none", "H4
 
 
             for r in d.regions
-               if v.REDISTregpotential[t,r] > 0
-                    v.ABATECOSTforeignpotential[t,r] = v.REDISTregpotential[t,r]
+               if v.REDISTRECregpotential[t,r] > 0
+                    v.ABATECOSTforeignpotential[t,r] = v.REDISTRECregpotential[t,r]
                else
                     v.ABATECOSTforeignpotential[t,r] = 0
                end
@@ -1024,7 +1033,7 @@ global foreignabatement = "H4-L8-GDPpre-cond-uniCPRICE-opt"        # "none", "H4
             end
 
 
-            # Define actual REDISTreg
+            # Define actual REDIST & REDISTreg (via total and regional ABATECOSTforeign)
             for r in d.regions
                 v.REDIST[t] = v.ABATECOSTforeign[t,6] + v.ABATECOSTforeign[t,7] + v.ABATECOSTforeign[t,9] + v.ABATECOSTforeign[t,12] + v.ABATECOSTforeign[t,4] + v.ABATECOSTforeign[t,5] + v.ABATECOSTforeign[t,8] + v.ABATECOSTforeign[t,10]
 
