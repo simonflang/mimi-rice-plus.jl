@@ -93,6 +93,9 @@ if saveresults
     writedlm(string(dir_output, "ABATECOSTpotential.csv"), m[:emissions, :ABATECOSTpotential], ",")
     writedlm(string(dir_output, "pbacktime.csv"), m[:emissions, :pbacktime], ",")
     writedlm(string(dir_output, "REDISTregpotential.csv"), m[:emissions, :REDISTregpotential], ",")
+    writedlm(string(dir_output, "REDISTRECregpotential.csv"), m[:emissions, :REDISTRECregpotential], ",")
+    writedlm(string(dir_output, "REDISTRECshare.csv"), m[:emissions, :REDISTRECshare], ",")
+    writedlm(string(dir_output, "REDISTRECsharesum.csv"), m[:emissions, :REDISTRECsharesum], ",")
 
     # Gross Economy
     writedlm(string(dir_output, "YGROSS.csv"), m[:grosseconomy, :YGROSS], ",")
@@ -324,6 +327,7 @@ if plotresults
     global_plot("CCA")
     global_plot("etree")
     global_plot("REDIST")
+    global_plot("REDISTRECsharesum")
     global_plot("REDISTbase")
     global_plot("TOTALSLR")
 
@@ -332,6 +336,8 @@ if plotresults
     # Region redistribution
     region_plot("REDISTreg")
     region_plot("REDISTregpotential")
+    region_plot("REDISTRECregpotential")
+    region_plot("REDISTRECshare")
     region_plot("REDISTregperYNET")
     region_plot("REDISTregperYNETpr")
     region_plot("REDISTregperYNETpre")

@@ -1,6 +1,6 @@
 using Mimi
 
-global foreignabatement = "H4-L8-GDPpre-cond-uniCPRICE-opt"        # "none", "H4-L8-GDPpre-cond-diffCPRICE", "H4-L8-GDPpre-cond-uniCPRICE", "H4-L8-GDPpre-cond-uniCPRICE-opt"
+global foreignabatement = "H4-L8-GDPpre-cond-diffCPRICE-opt"        # "none", "H4-L8-GDPpre-cond-diffCPRICE", "H4-L8-GDPpre-cond-diffCPRICE-opt", "H4-L8-GDPpre-cond-uniCPRICE", "H4-L8-GDPpre-cond-uniCPRICE-opt"
 
 @defcomp emissions begin
     regions = Index()
@@ -68,7 +68,7 @@ global foreignabatement = "H4-L8-GDPpre-cond-uniCPRICE-opt"        # "none", "H4
     # NEW: Redistribution - endogenous shares
     REDISTRECshare = Parameter(index=[time, regions]) # Redistribution share (receiving) [0,1]
     REDISTRECregpotential = Variable(index=[time, regions]) # Potential Regional Redistribution RECEIVING (trillions 2005 USD per year)
-
+    REDISTRECsharesum = Variable(index=[time]) # Sum over redistribution shares (receiving) - should always be 1
 
     function run_timestep(p, v, d, t)
 
@@ -434,6 +434,304 @@ global foreignabatement = "H4-L8-GDPpre-cond-uniCPRICE-opt"        # "none", "H4
                 v.CPRICEtotal[t,r] = p.pbacktime[t,r] * 1000 * v.MIUtotal[t,r]^(p.expcost2[r] - 1)
             end
 
+
+        elseif foreignabatement == "H4-L8-GDPpre-cond-diffCPRICE-opt"
+
+            for r in d.regions
+
+                if t.t == 1
+
+                    # v.REDISTregpotential[t,1] = - p.REDISTbase[t] * (v.YNET[t,1]/(v.YNET[t,1] + v.YNET[t,2] + v.YNET[t,3] + v.YNET[t,11]))   # note REDISTbase[1] is 0 by default
+                    # v.REDISTregpotential[t,2] = - p.REDISTbase[t] * (v.YNET[t,2]/(v.YNET[t,1] + v.YNET[t,2] + v.YNET[t,3] + v.YNET[t,11]))
+                    # v.REDISTregpotential[t,3] = - p.REDISTbase[t] * (v.YNET[t,3]/(v.YNET[t,1] + v.YNET[t,2] + v.YNET[t,3] + v.YNET[t,11]))
+                    # v.REDISTregpotential[t,11] = - p.REDISTbase[t] * (v.YNET[t,11]/(v.YNET[t,1] + v.YNET[t,2] + v.YNET[t,3] + v.YNET[t,11]))
+
+                    v.REDISTregpotential[t,1] = 0
+                    v.REDISTregpotential[t,2] = 0
+                    v.REDISTregpotential[t,3] = 0
+                    v.REDISTregpotential[t,11] = 0
+
+                    v.REDISTpotential[t] = p.REDISTbase[t]       # note REDISTbase[1] is 0 by default, so REDIST[1] is 0 by default
+
+                    #Recipients (China, India, Africa, OthAsia, Russia, Eurasia, MidEast, LatAm)
+                    v.REDISTregpotential[t,6] = 0
+                    v.REDISTregpotential[t,7] = 0
+                    v.REDISTregpotential[t,9] = 0
+                    v.REDISTregpotential[t,12] = 0
+                    v.REDISTregpotential[t,4] = 0
+                    v.REDISTregpotential[t,5] = 0
+                    v.REDISTregpotential[t,8] = 0
+                    v.REDISTregpotential[t,10] = 0
+
+                    v.REDISTRECregpotential[t,r] = v.REDISTpotential[t] * p.REDISTRECshare[t,r]
+
+                elseif t.t == 2
+
+                    v.REDISTregpotential[t,1] = - p.REDISTbase[t] * (p.YNET[t-1,1]/(p.YNET[t-1,1] + p.YNET[t-1,2] + p.YNET[t-1,3] + p.YNET[t-1,11]))
+                    v.REDISTregpotential[t,2] = - p.REDISTbase[t] * (p.YNET[t-1,2]/(p.YNET[t-1,1] + p.YNET[t-1,2] + p.YNET[t-1,3] + p.YNET[t-1,11]))
+                    v.REDISTregpotential[t,3] = - p.REDISTbase[t] * (p.YNET[t-1,3]/(p.YNET[t-1,1] + p.YNET[t-1,2] + p.YNET[t-1,3] + p.YNET[t-1,11]))
+                    v.REDISTregpotential[t,11] = - p.REDISTbase[t] * (p.YNET[t-1,11]/(p.YNET[t-1,1] + p.YNET[t-1,2] + p.YNET[t-1,3] + p.YNET[t-1,11]))
+
+                    v.REDISTpotential[t] = p.REDISTbase[t]
+
+                    #Recipients (China, India, Africa, OthAsia, Russia, Eurasia, MidEast, LatAm)
+                    v.REDISTregpotential[t,6] = 0
+                    v.REDISTregpotential[t,7] = 0
+                    v.REDISTregpotential[t,9] = 0
+                    v.REDISTregpotential[t,12] = 0
+                    v.REDISTregpotential[t,4] = 0
+                    v.REDISTregpotential[t,5] = 0
+                    v.REDISTregpotential[t,8] = 0
+                    v.REDISTregpotential[t,10] = 0
+
+                    v.REDISTRECregpotential[t,r] = v.REDISTpotential[t] * p.REDISTRECshare[t,r]
+
+                else
+                    v.REDISTregpotential[t,1] = - p.REDISTbase[t] * (p.YNET[2,1]/(p.YNET[2,1] + p.YNET[2,2] + p.YNET[2,3] + p.YNET[2,11])) * (p.YNET[t-1,1]/p.YNET[2,1])
+                    v.REDISTregpotential[t,2] = - p.REDISTbase[t] * (p.YNET[2,2]/(p.YNET[2,1] + p.YNET[2,2] + p.YNET[2,3] + p.YNET[2,11])) * (p.YNET[t-1,2]/p.YNET[2,2])
+                    v.REDISTregpotential[t,3] = - p.REDISTbase[t] * (p.YNET[2,3]/(p.YNET[2,1] + p.YNET[2,2] + p.YNET[2,3] + p.YNET[2,11])) * (p.YNET[t-1,3]/p.YNET[2,3])
+                    v.REDISTregpotential[t,11] = - p.REDISTbase[t] * (p.YNET[2,11]/(p.YNET[2,1] + p.YNET[2,2] + p.YNET[2,3] + p.YNET[2,11])) * (p.YNET[t-1,11]/p.YNET[2,11])
+
+                    v.REDISTpotential[t] = p.REDISTbase[t] * (p.YNET[t-1,1] + p.YNET[t-1,2] + p.YNET[t-1,3] + p.YNET[t-1,11]) / (p.YNET[2,1] + p.YNET[2,2] + p.YNET[2,3] + p.YNET[2,11])
+                    # v.REDISTpotential[t] = v.REDISTregpotential[t,1] + v.REDISTregpotential[t,2] + v.REDISTregpotential[t,3] + v.REDISTregpotential[t,11]
+
+                    #Recipients (China, India, Africa, OthAsia, Russia, Eurasia, MidEast, LatAm)
+                    v.REDISTregpotential[t,6] = 0
+                    v.REDISTregpotential[t,7] = 0
+                    v.REDISTregpotential[t,9] = 0
+                    v.REDISTregpotential[t,12] = 0
+                    v.REDISTregpotential[t,4] = 0
+                    v.REDISTregpotential[t,5] = 0
+                    v.REDISTregpotential[t,8] = 0
+                    v.REDISTregpotential[t,10] = 0
+
+                    v.REDISTRECregpotential[t,r] = v.REDISTpotential[t] * p.REDISTRECshare[t,r]
+                end
+            end
+
+            v.REDISTRECsharesum[t] = sum(p.REDISTRECshare[t,:])
+
+            ###################################################################################################################################
+            ################### Third  VERSION  ###############################################################################################
+            ###################################################################################################################################
+
+
+            for r in d.regions
+               if v.REDISTRECregpotential[t,r] > 0
+                    v.ABATECOSTforeignpotential[t,r] = v.REDISTRECregpotential[t,r]
+               else
+                    v.ABATECOSTforeignpotential[t,r] = 0
+               end
+               # println("v.ABATECOSTforeignpotential[t,r]", v.ABATECOSTforeignpotential[t,r])
+            end
+
+
+
+            for r in d.regions
+                # v.ABATECOSTtotal[t,r] = v.ABATECOST[t,r] + v.ABATECOSTforeignpotential[t,r]
+
+                v.MIUforeigncalc[t,r] = (v.ABATECOSTforeignpotential[t,r] / (p.YGROSS[t,r] * p.cost1[t,r])) ^ (1/p.expcost2[r])
+
+                if v.MIUforeigncalc[t,r] <= 1
+                    v.MIUforeign[t,r] = v.MIUforeigncalc[t,r]
+                else
+                    v.MIUforeign[t,r] = 1
+                end
+            end
+
+                # v.ABATECOST[t,r] = p.YGROSS[t,r] * p.cost1[t,r] * (p.MIU[t,r]^p.expcost2[r]) * (p.partfract[t,r]^(1 - p.expcost2[r]))
+            for r in d.regions
+                v.ABATECOSTtotal[t,r] = p.YGROSS[t,r] * p.cost1[t,r] * (p.MIU[t,r] + v.MIUforeign[t,r])^p.expcost2[r]
+            end
+
+            for r in d.regions
+                v.MIU[t,r] = p.MIU[t,r]     # just to be able to save MIU
+            end
+
+            for r in d.regions
+                v.ABATECOSTpotential[t,r] = v.ABATECOSTtotal[t,r] - v.ABATECOSTforeignpotential[t,r]
+            end
+
+
+                    # NEW: COUNTRY-LEVEL: Define function for ABATECOST  - need to CHANGE that (does not take into account foreign abatement yet)
+                    for c in d.countries
+                        if p.inregion[c] == 1
+                            v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,1] * (p.MIU[t,1]^p.expcost2[1]) * (p.partfract[t,1]^(1 - p.expcost2[1]))
+                        elseif p.inregion[c] == 2
+                            v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,2] * (p.MIU[t,2]^p.expcost2[2]) * (p.partfract[t,2]^(1 - p.expcost2[2]))
+                        elseif p.inregion[c] == 3
+                            v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,3] * (p.MIU[t,3]^p.expcost2[3]) * (p.partfract[t,3]^(1 - p.expcost2[3]))
+                        elseif p.inregion[c] == 4
+                            v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,4] * (p.MIU[t,4]^p.expcost2[4]) * (p.partfract[t,4]^(1 - p.expcost2[4]))
+                        elseif p.inregion[c] == 5
+                            v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,5] * (p.MIU[t,5]^p.expcost2[5]) * (p.partfract[t,5]^(1 - p.expcost2[5]))
+                        elseif p.inregion[c] == 6
+                            v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,6] * (p.MIU[t,6]^p.expcost2[6]) * (p.partfract[t,6]^(1 - p.expcost2[6]))
+                        elseif p.inregion[c] == 7
+                            v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,7] * (p.MIU[t,7]^p.expcost2[7]) * (p.partfract[t,7]^(1 - p.expcost2[7]))
+                        elseif p.inregion[c] == 8
+                            v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,8] * (p.MIU[t,8]^p.expcost2[8]) * (p.partfract[t,8]^(1 - p.expcost2[8]))
+                        elseif p.inregion[c] == 9
+                            v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,9] * (p.MIU[t,9]^p.expcost2[9]) * (p.partfract[t,9]^(1 - p.expcost2[9]))
+                        elseif p.inregion[c] == 10
+                            v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,10] * (p.MIU[t,10]^p.expcost2[10]) * (p.partfract[t,10]^(1 - p.expcost2[10]))
+                        elseif p.inregion[c] == 11
+                            v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,11] * (p.MIU[t,11]^p.expcost2[11]) * (p.partfract[t,11]^(1 - p.expcost2[11]))
+                        elseif p.inregion[c] == 12
+                            v.ABATECOSTctry[t,c] = p.YGROSSctry[t,c] * p.cost1[t,12] * (p.MIU[t,12]^p.expcost2[12]) * (p.partfract[t,12]^(1 - p.expcost2[12]))
+                        else
+                            println("country does not belong to any region")
+                        end
+                    end
+
+
+            for r in d.regions
+                v.MIUtotalcalc[t,r] = p.MIU[t,r] + v.MIUforeign[t,r]
+
+                if v.MIUtotalcalc[t,r] <= 1
+                    v.MIUtotal[t,r] = v.MIUtotalcalc[t,r]
+                else
+                    v.MIUtotal[t,r] = 1
+                end
+            end
+
+            for r in d.regions
+                v.EIND[t,r] = p.sigma[t,r] * p.YGROSS[t,r] * (1-v.MIUtotal[t,r])
+                v.EINDforeign[t,r] = p.sigma[t,r] * p.YGROSS[t,r] * (1-v.MIUforeign[t,r])
+                v.EINDdomestic[t,r] = p.sigma[t,r] * p.YGROSS[t,r] * (1-p.MIU[t,r])
+            end
+
+
+            for r in d.regions
+                #Define function for E
+                if p.marginalemission == 0
+                    v.E[t] = sum(v.EIND[t,:]) + p.etree[t]
+                elseif p.marginalemission == 1
+                    if t.t == 2
+                        v.E[t] = sum(v.EIND[t,:]) + p.etree[t] + 1 # additional emissions pulse of 1 Gt in 2015 (period 2)
+                    else
+                        v.E[t] = sum(v.EIND[t,:]) + p.etree[t]
+                    end
+                else
+                    println("no marginal emissions")
+                end
+            end
+
+            for r in d.regions
+                #Define function for CCA
+                if is_first(t)
+                    v.CCA[t] = sum(v.EIND[t,:]) * 10.
+                else
+                    v.CCA[t] =  v.CCA[t-1] + (sum(v.EIND[t,:]) * 10.)
+                end
+            end
+
+            for r in d.regions
+                if v.ABATECOSTforeignpotential[t,r] <= v.ABATECOSTtotal[t,r]
+                    v.ABATECOSTforeign[t,r] = v.ABATECOSTforeignpotential[t,r]
+                else
+                    v.ABATECOSTforeign[t,r] = v.ABATECOSTtotal[t,r]
+                end
+
+                v.ABATECOST[t,r] = v.ABATECOSTtotal[t,r] - v.ABATECOSTforeign[t,r]
+            end
+
+
+            # Define actual REDISTreg
+            for r in d.regions
+                v.REDIST[t] = v.ABATECOSTforeign[t,6] + v.ABATECOSTforeign[t,7] + v.ABATECOSTforeign[t,9] + v.ABATECOSTforeign[t,12] + v.ABATECOSTforeign[t,4] + v.ABATECOSTforeign[t,5] + v.ABATECOSTforeign[t,8] + v.ABATECOSTforeign[t,10]
+
+                if t.t == 1
+                    v.REDISTreg[t,1] = 0
+                    v.REDISTreg[t,2] = 0
+                    v.REDISTreg[t,3] = 0
+                    v.REDISTreg[t,11] = 0
+
+                    v.REDISTreg[t,6] =  v.ABATECOSTforeign[t,6]
+                    v.REDISTreg[t,7] = v.ABATECOSTforeign[t,7]
+                    v.REDISTreg[t,9] = v.ABATECOSTforeign[t,9]
+                    v.REDISTreg[t,12] = v.ABATECOSTforeign[t,12]
+                    v.REDISTreg[t,4] = v.ABATECOSTforeign[t,4]
+                    v.REDISTreg[t,5] = v.ABATECOSTforeign[t,5]
+                    v.REDISTreg[t,8] = v.ABATECOSTforeign[t,8]
+                    v.REDISTreg[t,10] = v.ABATECOSTforeign[t,10]
+
+                elseif t.t == 2
+                    v.REDISTreg[t,1] = - v.REDIST[t] * (p.YNET[t-1,1]/(p.YNET[t-1,1] + p.YNET[t-1,2] + p.YNET[t-1,3] + p.YNET[t-1,11]))
+                    v.REDISTreg[t,2] = - v.REDIST[t] * (p.YNET[t-1,2]/(p.YNET[t-1,1] + p.YNET[t-1,2] + p.YNET[t-1,3] + p.YNET[t-1,11]))
+                    v.REDISTreg[t,3] = - v.REDIST[t] * (p.YNET[t-1,3]/(p.YNET[t-1,1] + p.YNET[t-1,2] + p.YNET[t-1,3] + p.YNET[t-1,11]))
+                    v.REDISTreg[t,11] = - v.REDIST[t] * (p.YNET[t-1,11]/(p.YNET[t-1,1] + p.YNET[t-1,2] + p.YNET[t-1,3] + p.YNET[t-1,11]))
+
+                    #Recipients (China, India, Africa, OthAsia, Russia, Eurasia, MidEast, LatAm)
+                    v.REDISTreg[t,6] =  v.ABATECOSTforeign[t,6]
+                    v.REDISTreg[t,7] = v.ABATECOSTforeign[t,7]
+                    v.REDISTreg[t,9] = v.ABATECOSTforeign[t,9]
+                    v.REDISTreg[t,12] = v.ABATECOSTforeign[t,12]
+                    v.REDISTreg[t,4] = v.ABATECOSTforeign[t,4]
+                    v.REDISTreg[t,5] = v.ABATECOSTforeign[t,5]
+                    v.REDISTreg[t,8] = v.ABATECOSTforeign[t,8]
+                    v.REDISTreg[t,10] = v.ABATECOSTforeign[t,10]
+
+                else
+                    v.REDISTreg[t,1] = - v.REDIST[t] * (p.YNET[t-1,1]/(p.YNET[t-1,1] + p.YNET[t-1,2] + p.YNET[t-1,3] + p.YNET[t-1,11]))
+                    v.REDISTreg[t,2] = - v.REDIST[t] * (p.YNET[t-1,2]/(p.YNET[t-1,1] + p.YNET[t-1,2] + p.YNET[t-1,3] + p.YNET[t-1,11]))
+                    v.REDISTreg[t,3] = - v.REDIST[t] * (p.YNET[t-1,3]/(p.YNET[t-1,1] + p.YNET[t-1,2] + p.YNET[t-1,3] + p.YNET[t-1,11]))
+                    v.REDISTreg[t,11] = - v.REDIST[t] * (p.YNET[t-1,11]/(p.YNET[t-1,1] + p.YNET[t-1,2] + p.YNET[t-1,3] + p.YNET[t-1,11]))
+
+                    #Recipients (China, India, Africa, OthAsia, Russia, Eurasia, MidEast, LatAm)
+                    v.REDISTreg[t,6] =  v.ABATECOSTforeign[t,6]
+                    v.REDISTreg[t,7] = v.ABATECOSTforeign[t,7]
+                    v.REDISTreg[t,9] = v.ABATECOSTforeign[t,9]
+                    v.REDISTreg[t,12] = v.ABATECOSTforeign[t,12]
+                    v.REDISTreg[t,4] = v.ABATECOSTforeign[t,4]
+                    v.REDISTreg[t,5] = v.ABATECOSTforeign[t,5]
+                    v.REDISTreg[t,8] = v.ABATECOSTforeign[t,8]
+                    v.REDISTreg[t,10] = v.ABATECOSTforeign[t,10]
+                end
+            end
+
+
+            #Define function for MCABATE
+            # OLD
+                # for r in d.regions
+                #     v.MCABATE[t,r] = p.pbacktime[t,r] * p.MIU[t,r]^(p.expcost2[r] - 1)
+                # end
+
+            # NEW
+            for r in d.regions
+                if p.MIU[t,r] == 0
+                    v.MCABATE[t,r] = p.pbacktime[t,r] * p.MIU[t,r]^(p.expcost2[r] - 1)
+                else
+                    v.MCABATE[t,r] = p.pbacktime[t,r] * v.MIUtotal[t,r]^(p.expcost2[r] - 1)
+                end
+            end
+
+            #Define function for CPRICE
+            # This I can change to an increasing carbon price
+                #OLD
+                # for r in d.regions
+                #     v.CPRICE[t,r] = p.pbacktime[t,r] * 1000 * p.MIU[t,r]^(p.expcost2[r] - 1)
+                # end
+
+            # NEW
+            for r in d.regions
+                if p.MIU[t,r] == 0
+                    v.CPRICE[t,r] = p.pbacktime[t,r] * 1000 * p.MIU[t,r]^(p.expcost2[r] - 1)
+                else
+                    v.CPRICE[t,r] = p.pbacktime[t,r] * 1000 * v.MIUtotal[t,r]^(p.expcost2[r] - 1)
+                end
+            end
+
+
+            # NEW MCABATE for the whole economy (considering foreign and domestic abatement)
+            for r in d.regions
+                v.MCABATEtotal[t,r] = p.pbacktime[t,r] * v.MIUtotal[t,r]^(p.expcost2[r] - 1)
+            end
+
+            # NEW CPRICE for the whole economy (considering foreign and domestic abatement)
+            for r in d.regions
+                v.CPRICEtotal[t,r] = p.pbacktime[t,r] * 1000 * v.MIUtotal[t,r]^(p.expcost2[r] - 1)
+            end
 
         elseif foreignabatement == "H4-L8-GDPpre-cond-uniCPRICE"
 
